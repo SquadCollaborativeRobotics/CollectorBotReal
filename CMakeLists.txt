@@ -20,10 +20,10 @@ find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs genmsg message_gen
 #######################################
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   DIRECTORY msg
-#   FILES Num.msg
-# )
+ add_message_files(
+   DIRECTORY msg
+   FILES DiffCommand.msg
+ )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -32,10 +32,10 @@ find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs genmsg message_gen
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
+ generate_messages(
+   DEPENDENCIES
+   std_msgs
+ )
 
 ###################################
 ## catkin specific configuration ##
@@ -61,16 +61,19 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
-  ${catkin_INCLUDE_DIRS}
+  include ${catkin_INCLUDE_DIRS}
 )
 
 
-## Declare a cpp library
-# add_library(beginner_tutorials
-#   src/${PROJECT_NAME}/
-# )
 
 ## Declare a cpp executable
+add_executable(motor_node src/motor_node.cpp)
+
+## Declare a cpp library
+add_library(serial_interface src/serial_interface.cpp)
+
+target_link_libraries(motor_node serial_interface ${catkin_LIBRARIES})
+add_dependencies(motor_node scr_proto_generate_messages_cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
