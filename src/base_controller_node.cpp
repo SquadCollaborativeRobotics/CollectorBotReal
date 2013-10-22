@@ -1,6 +1,7 @@
 #include "ros/ros.h"
 #include "geometry_msgs/Twist.h"
 #include "scr_proto/DiffCommand.h"
+#include <Eigen/Dense>
 
 // Physical Parameters... What do to with these?
 float wheel_radius, axle_length
@@ -39,18 +40,32 @@ int main(int argc, char **argv){
   while(ros::ok()){
     
     // Calculate Motor Commands given command velocity
-    // Need Linear Alg or something to solve aX=b
-    float a[2][2] = {{1.0 1.0}, 
-                   {1.0/(axle_length/2.0), -1.0/(axle_length/20)}}
-
-    float b[2][1] = {{cmd_vx}, {cmd_wz}}
+    // A matrix based on body parameters
+    Matrix2f A;
+    A << 1.0, 1.0,
+         1.0/(axle_length/2.0), -1.0/(axle_length/2.0);
+    
+    // b vector for command velocities
+    Vector2f b;
+    b << cmd_vx,
+         cmd_wz;
+    
+    // x vector for storing wheel velocities after solve 
+    Vector2f x;
     
     // Pass to linear Alg to solver or something?
+    x = A.ldlt().solve(b);
+
+    // Convert Wheel Velocities to Angular Velocities
+    // Be careful for sing flip, as motors are not mounted symmetrically
+    right_wheel_omega = x(0)/wheel_radius;
+    left_wheel_omega = x(1)/wheel_radius;
 
     // Declare Message
     scr_proto::DiffCommand motor_com;
 
     // Populate Message
+    // Need to map omega's to value between -255 and 255.
 
     // Publish Message
     motor_pub.publish(motor_com);
