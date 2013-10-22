@@ -5,7 +5,7 @@
 #include <eigen3/Eigen/Dense>
 
 // Physical Parameters... What do to with these?
-float wheel_radius=.25, axle_length=1;
+float wheel_radius=4.875/2.0*.0254, axle_half_length=8.4*.0254;
 float motor_max_speed=2.5;
 
 // Global values for velocity storage
@@ -41,7 +41,7 @@ int main(int argc, char **argv){
     // A matrix based on body parameters
     Eigen::Matrix2f A;
     A << 1.0, 1.0,
-         1.0/(axle_length/2.0), -1.0/(axle_length/2.0);
+         1.0/(axle_half_length), -1.0/(axle_half_length);
     
     // b vector for command velocities
     Eigen::Vector2f b;
