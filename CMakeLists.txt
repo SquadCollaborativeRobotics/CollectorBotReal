@@ -5,7 +5,7 @@ project(scr_proto)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs genmsg message_generation)
-
+find_package(eigen REQUIRED)
 ## System dependencies are found with CMake's conventions
 
 
@@ -49,7 +49,7 @@ catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES
   CATKIN_DEPENDS roscpp rospy std_msgs message_runtime
-#  DEPENDS system_lib
+  DEPENDS eigen
 )
 
 ###########
@@ -67,10 +67,12 @@ set(SER_LIB /usr/lib/libserial.so.0.0.0)
 
 ## Declare a cpp executable
 add_executable(motor_node src/motor_node.cpp)
+add_executable(base_controller_node src/base_controller_node.cpp)
 
 ## Declare a cpp library
 add_library(serial_interface src/serial_interface.cpp)
 
+target_link_libraries(base_controller_node ${catkin_LIBRARIES})
 target_link_libraries(motor_node serial_interface ${catkin_LIBRARIES} ${SER_LIB})
 add_dependencies(motor_node scr_proto_generate_messages_cpp)
 
