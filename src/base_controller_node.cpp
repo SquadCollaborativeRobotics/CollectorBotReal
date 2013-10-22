@@ -5,8 +5,8 @@
 #include <eigen3/Eigen/Dense>
 
 // Physical Parameters... What do to with these?
-float wheel_radius, axle_length;
-float motor_max_speed;
+float wheel_radius=.25, axle_length=1;
+float motor_max_speed=2.5;
 
 // Global values for velocity storage
 float cmd_vx=0, cmd_vy=0, cmd_vz=0, cmd_wx=0, cmd_wy=0, cmd_wz=0;
@@ -60,8 +60,8 @@ int main(int argc, char **argv){
     float left_wheel_omega = x(1)/wheel_radius;
 
     // Log info to see output of linear system
-    ROS_INFO("Right Motor Desired Speed = [%d]", right_wheel_omega);
-    ROS_INFO("Left Motor Desired Speed = [%d]", left_wheel_omega);
+    ROS_INFO("Right Motor Desired Speed = [%f]", right_wheel_omega);
+    ROS_INFO("Left Motor Desired Speed = [%f]", left_wheel_omega);
 
     // Declare Message
     scr_proto::DiffCommand motor_com;
@@ -75,8 +75,8 @@ int main(int argc, char **argv){
     motor_com.right_motor = (int)right_wheel_omega;
 
     // Log Info for debugging
-    ROS_INFO("Right Motor Command = [%d]", right_wheel_omega);
-    ROS_INFO("Left Motor Command = [%d]", left_wheel_omega);
+    ROS_INFO("Right Motor Command = [%f]", right_wheel_omega);
+    ROS_INFO("Left Motor Command = [%f]", left_wheel_omega);
 
     // Publish Message
     motor_pub.publish(motor_com);
