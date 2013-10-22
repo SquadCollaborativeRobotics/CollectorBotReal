@@ -7,7 +7,6 @@ project(scr_proto)
 find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs genmsg message_generation)
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -64,7 +63,7 @@ include_directories(
   include ${catkin_INCLUDE_DIRS}
 )
 
-
+set(SER_LIB /usr/lib/libserial.so.0.0.0)
 
 ## Declare a cpp executable
 add_executable(motor_node src/motor_node.cpp)
@@ -72,7 +71,7 @@ add_executable(motor_node src/motor_node.cpp)
 ## Declare a cpp library
 add_library(serial_interface src/serial_interface.cpp)
 
-target_link_libraries(motor_node serial_interface ${catkin_LIBRARIES})
+target_link_libraries(motor_node serial_interface ${catkin_LIBRARIES} ${SER_LIB})
 add_dependencies(motor_node scr_proto_generate_messages_cpp)
 
 ## Add cmake target dependencies of the executable/library
