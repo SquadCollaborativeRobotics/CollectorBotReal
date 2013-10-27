@@ -75,8 +75,8 @@ int main(int argc, char **argv){
     double left_wheel_omega = wheel_linear_speeds(1)/wheel_radius;
 
     // Log info to see output of linear system
-    ROS_INFO("Right Motor Desired Speed = [%f]", right_wheel_omega);
-    ROS_INFO("Left Motor Desired Speed = [%f]", left_wheel_omega);
+    ROS_INFO("Right Motor Desired Speed = [%d]", right_wheel_omega);
+    ROS_INFO("Left Motor Desired Speed = [%d]", left_wheel_omega);
 
     // Declare Message
     scr_proto::DiffCommand motor_com;
@@ -90,8 +90,8 @@ int main(int argc, char **argv){
     motor_com.right_motor = (int)right_wheel_omega;
 
     // Log Info for debugging
-    ROS_INFO("Right Motor Command = [%f]", right_wheel_omega);
-    ROS_INFO("Left Motor Command = [%f]", left_wheel_omega);
+    ROS_INFO("Right Motor Command = [%d]", right_wheel_omega);
+    ROS_INFO("Left Motor Command = [%d]", left_wheel_omega);
 
     // Publish Message
     motor_pub.publish(motor_com);
