@@ -23,14 +23,14 @@ void commandCallback(const geometry_msgs::Twist::ConstPtr& msg){
 
 // Function to calculate wheel speeds given a diff drive command
 // Models problem as Ax = b form
-Eigen::Vector2d getWheelSpeeds(double wheel_offset, double cmd_x, double cmd_th){
+Eigen::Vector2d getWheelLinSpeeds(double wheel_offset, double cmd_x, double cmd_th){
   /*
   @ Params:  wheel_offset -> Distance between center of wheel axle and center of wheel contact
              cmd_x        -> Commanded forward velocity for the robot
              cmd_th       -> Commanded angular velocity about the reference point
   @ Returns: x            -> Eigen::Vector containing body velocities at wheel;
-                             x(0) -> Right Wheel
-                             x(1) -> Left Wheel
+                             x(0) -> Right Wheel Linear Speed in m/s
+                             x(1) -> Left Wheel Linear Speed in m/s
   */
 
   // Diff Drive Dynamics Solution, vr = right wheel velocity, vl = left wheel velocity
@@ -43,6 +43,27 @@ Eigen::Vector2d getWheelSpeeds(double wheel_offset, double cmd_x, double cmd_th)
   x(0) = vr;
   x(1) = vl;
   return x;
+
+}
+
+// Function to calculate angular speeds of wheels given differential drvie command
+Eigen::Vector2d getWheelSpeeds(double wheel_radius, double wheel_offset, double cmd_x, double cmd_th){
+  /*
+  @ Params:  wheel_radius -> Radius of wheels in m
+             wheel_offset -> Distance between center of wheel axle and center of wheel contact in m
+             cmd_x        -> Commanded forward velocity for the robot in m/s
+             cmd_th       -> Commanded angular velocity about the reference point in rad/s
+  @ Returns: x            -> Eigen::Vector containing body velocities at wheel;
+                             x(0) -> Right Wheel Rotational Speed in rad/s
+                             x(1) -> Left Wheel Rotational Speed in rad/s
+
+  */
+  
+  // Get Linear Speeds
+  Eigen::Vector2d speeds = getWheelLinSpeeds(wheel_offset, cmd_x, cmd_th);
+
+  // Translate to Rotational Speeds
+  return speeds /= wheel_radius;
 
 }
 
@@ -64,19 +85,17 @@ int main(int argc, char **argv){
   while(ros::ok()){
     
     // Vector for holding the linear speeds at the wheels
-    Eigen::Vector2d wheel_linear_speeds;
+    Eigen::Vector2d wheel_speeds;
     
-    // Pass to linear Alg to solver or something?
-    wheel_linear_speeds = getWheelSpeeds(axle_half_length, cmd_vx, cmd_wz);
-
-    // Convert Wheel Velocities to Angular Velocities
-    // Be careful for sign flip, as motors are not mounted symmetrically
-    double right_wheel_omega = wheel_linear_speeds(0)/wheel_radius;
-    double left_wheel_omega = wheel_linear_speeds(1)/wheel_radius;
+    // Get Rotational Speeds given command
+    // Be Careful, assumes motor axes point same direction
+    wheel_speeds = getWheelSpeeds(wheel_radius, axle_half_length, cmd_vx, cmd_wz);
+    double right_wheel_omega = wheel_speeds(0);
+    double left_wheel_omega = wheel_speeds(1);
 
     // Log info to see output of linear system
-    ROS_INFO("Right Motor Desired Speed = [%d]", right_wheel_omega);
-    ROS_INFO("Left Motor Desired Speed = [%d]", left_wheel_omega);
+    ROS_INFO("Right Motor Desired Speed = [%f]", right_wheel_omega);
+    ROS_INFO("Left Motor Desired Speed = [%f]", left_wheel_omega);
 
     // Declare Message
     scr_proto::DiffCommand motor_com;
@@ -90,8 +109,8 @@ int main(int argc, char **argv){
     motor_com.right_motor = (int)right_wheel_omega;
 
     // Log Info for debugging
-    ROS_INFO("Right Motor Command = [%d]", right_wheel_omega);
-    ROS_INFO("Left Motor Command = [%d]", left_wheel_omega);
+    ROS_INFO("Right Motor Command = [%f]", right_wheel_omega);
+    ROS_INFO("Left Motor Command = [%f]", left_wheel_omega);
 
     // Publish Message
     motor_pub.publish(motor_com);
