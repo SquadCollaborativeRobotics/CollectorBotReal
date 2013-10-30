@@ -19,7 +19,8 @@ private double SpeedController::get_wheel_vels(){
   enc_time = ros::Time::now().toSec();
   
   // Calculate unfiltered encoder velocity in pulses per sec
-  omega = (enc_count - prev_enc_count)/(enc_time - prev_enc_time);
+  double omega = (enc_count - prev_enc_count) /
+                 (enc_time - prev_enc_time);
 
   // Convert from pulses per sec to rads per sec
   omega /= pulses_per_rev * 2 * PI;
@@ -53,6 +54,7 @@ public double SpeedController::control(double w_cmd){
   // Calculate PID Output
   output += _Kp * cur_error + _Kd * dedt + _Ki * int_error;
   
+  // Write value to Motor Driver
   assign(output);
 
   // Update Error Values
