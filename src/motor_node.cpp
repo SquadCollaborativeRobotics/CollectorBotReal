@@ -20,6 +20,7 @@ void motorCallback(const scr_proto::DiffCommand::ConstPtr& msg){
   left_motor_command = msg->left_motor;
   right_motor_command = msg->right_motor;
   // Check that motor commands are within range
+  // Defaults to throw out command
   if(abs(left_motor_command) > 255){
     ROS_INFO("Bad Left motor command, got [%d]", 
              left_motor_command);
@@ -33,6 +34,7 @@ void motorCallback(const scr_proto::DiffCommand::ConstPtr& msg){
   ROS_INFO("Left Motor: [%d]", left_motor_command);
   ROS_INFO("Right Motor: [%d]", right_motor_command);
   // Hardware call to drivers to change motor speed
+  // Assumes Left motor is attached to M0 on pmd
   pmd.setSpeeds(left_motor_command, right_motor_command);
 }
 
