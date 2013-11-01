@@ -1,6 +1,5 @@
 #include "ros/ros.h"
 #include "std_msgs/Float64"
-#include <algorithm>
 
 // Constructor that stores desired gains in class variable
 SpeedController::SpeedController(double kp, double ki, double kd){
@@ -52,7 +51,7 @@ public double SpeedController::control(double w_cmd){
   double dedt = (cur_error - prev_error) / dt;
 
   // Calculate PID Output
-  output += _Kp * cur_error + _Kd * dedt + _Ki * int_error;
+  output = _Kp * cur_error + _Kd * dedt + _Ki * int_error;
   
   // Write value to Motor Driver
   assign(output);
