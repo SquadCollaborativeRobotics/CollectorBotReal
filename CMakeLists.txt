@@ -21,7 +21,7 @@ find_package(eigen REQUIRED)
 ## Generate messages in the 'msg' folder
  add_message_files(
    DIRECTORY msg
-   FILES DiffCommand.msg
+   FILES DiffCommand.msg SpeedCommand.msg
  )
 
 ## Generate services in the 'srv' folder
@@ -68,13 +68,16 @@ set(SER_LIB /usr/lib/libserial.so.0.0.0)
 ## Declare a cpp executable
 add_executable(motor_node src/motor_node.cpp)
 add_executable(base_controller_node src/base_controller_node.cpp)
+add_executable(speed_controller_node src/speed_controller_node.cpp)
 
 ## Declare a cpp library
 add_library(serial_interface src/serial_interface.cpp)
 
 target_link_libraries(base_controller_node ${catkin_LIBRARIES})
 target_link_libraries(motor_node serial_interface ${catkin_LIBRARIES} ${SER_LIB})
+target_link_libraries(speed_controller_node ${catkin_LIBRARIES})
 add_dependencies(motor_node scr_proto_generate_messages_cpp)
+add_dependencies(speed_controller_node scr_proto_generate_messages_cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
