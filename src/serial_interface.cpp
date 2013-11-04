@@ -6,7 +6,6 @@ Author: Alex Sher, 17 Oct 2013
 
 #include "serial_interface.h"
 
-
 // serial command buffer storage
 char cmd[5];
 
