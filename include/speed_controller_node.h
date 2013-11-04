@@ -23,4 +23,4 @@ class SpeedController
     private double get_wheel_vels();
     // Function for hardware realization of output
     private void assign(int);
-}
+};
