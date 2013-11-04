@@ -83,11 +83,11 @@ add_dependencies(motor_node scr_proto_generate_messages_cpp)
 add_dependencies(speed_controller_node scr_proto_generate_messages_cpp)
 
 
-add_executable(tf_broadcaster src/TransformBroadcaster.cpp)
-target_link_libraries(tf_broadcaster ${catkin_LIBRARIES})
+add_executable(tf_broadcaster_node src/TransformBroadcaster.cpp)
+target_link_libraries(tf_broadcaster_node ${catkin_LIBRARIES})
 
-add_executable(odom_broadcaster src/OdometryBroadcaster.cpp)
-target_link_libraries(odom_broadcaster ${catkin_LIBRARIES})
+add_executable(odom_broadcaster_node src/OdometryBroadcaster.cpp)
+target_link_libraries(odom_broadcaster_node ${catkin_LIBRARIES})
 
 
 ## Add cmake target dependencies of the executable/library
