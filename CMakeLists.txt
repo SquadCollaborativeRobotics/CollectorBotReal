@@ -5,9 +5,9 @@ project(scr_proto)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS roscpp tf rospy std_msgs genmsg message_generation)
+find_package(eigen REQUIRED)
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -22,7 +22,9 @@ find_package(catkin REQUIRED COMPONENTS roscpp tf rospy std_msgs genmsg message_
 ## Generate messages in the 'msg' folder
  add_message_files(
    DIRECTORY msg
-   FILES DiffCommand.msg
+   FILES
+   		DiffCommand.msg
+	   	SpeedCommand.msg
  )
 
 ## Generate services in the 'srv' folder
@@ -50,7 +52,7 @@ catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES
   CATKIN_DEPENDS roscpp rospy std_msgs message_runtime
-#  DEPENDS system_lib
+  DEPENDS eigen
 )
 
 ###########
@@ -61,19 +63,24 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
-  include ${catkin_INCLUDE_DIRS}
+  include ${catkin_INCLUDE_DIRS} include/
 )
 
-
+set(SER_LIB /usr/lib/libserial.so.0.0.0)
 
 ## Declare a cpp executable
 add_executable(motor_node src/motor_node.cpp)
+add_executable(base_controller_node src/base_controller_node.cpp)
+add_executable(speed_controller_node src/speed_controller_node.cpp)
 
 ## Declare a cpp library
 add_library(serial_interface src/serial_interface.cpp)
 
-target_link_libraries(motor_node serial_interface ${catkin_LIBRARIES})
+target_link_libraries(base_controller_node ${catkin_LIBRARIES})
+target_link_libraries(motor_node serial_interface ${catkin_LIBRARIES} ${SER_LIB})
+target_link_libraries(speed_controller_node ${catkin_LIBRARIES})
 add_dependencies(motor_node scr_proto_generate_messages_cpp)
+add_dependencies(speed_controller_node scr_proto_generate_messages_cpp)
 
 
 add_executable(tf_broadcaster src/TransformBroadcaster.cpp)
