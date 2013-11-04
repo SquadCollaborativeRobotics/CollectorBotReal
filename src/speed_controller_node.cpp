@@ -9,8 +9,8 @@ double PI = 3.141592654;
 double pulses_per_rev = 3200;
 
 // CONTROL VARIABLES
-double Kp = 0.0 ;//.5;
-double Kd = 0.0 ;//.12;
+double Kp = .5;
+double Kd = .12;
 double Ki = 0.0;
 
 double last_control_time;
