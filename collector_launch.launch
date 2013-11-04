@@ -1,0 +1,26 @@
+<launch>
+  <!-- local machine already has a definition by default.
+       This tag overrides the default definition with
+       specific ROS_ROOT and ROS_PACKAGE_PATH values -->
+  <machine name="local_alt" address="localhost" default="true"/>
+
+  <!-- Collector Group -->
+  <group ns="collector">
+    <!-- odometry broadcast node -->
+    <node name="collector_odom_broadcaster_node" pkg="scr_proto" type="odom_broadcaster_node">
+      <param name="broadcast_rate" value="10" type="int" />
+      <param name="pose/x" value="0" type="double" />
+      <param name="pose/y" value="5" type="double" />
+      <param name="pose/theta" value="0" type="double" />
+    </node>
+    
+    <!-- transform broadcast node -->
+    <node name="collector_tf_broadcaster_node" pkg="scr_proto" type="tf_broadcaster_node">
+      <param name="broadcast_rate" value="1" type="int" />
+    </node>
+
+    <!-- pass args to the listener node -->
+    <node name="collector_rvis" pkg="rviz" type="rviz" />
+  </group>
+
+</launch>
