@@ -4,7 +4,7 @@ project(scr_proto)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs genmsg message_generation)
+find_package(catkin REQUIRED COMPONENTS roscpp tf rospy std_msgs genmsg message_generation)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -74,6 +74,14 @@ add_library(serial_interface src/serial_interface.cpp)
 
 target_link_libraries(motor_node serial_interface ${catkin_LIBRARIES})
 add_dependencies(motor_node scr_proto_generate_messages_cpp)
+
+
+add_executable(tf_broadcaster src/TransformBroadcaster.cpp)
+target_link_libraries(tf_broadcaster ${catkin_LIBRARIES})
+
+add_executable(odom_broadcaster src/OdometryBroadcaster.cpp)
+target_link_libraries(odom_broadcaster ${catkin_LIBRARIES})
+
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
