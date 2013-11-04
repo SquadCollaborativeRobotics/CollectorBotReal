@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <SerialStream.h>
 
 // Commands
 #define QIK_GET_FIRMWARE_VERSION         0x81

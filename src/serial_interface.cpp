@@ -6,11 +6,13 @@ Author: Alex Sher, 17 Oct 2013
 
 #include "serial_interface.h"
 
+
 // serial command buffer storage
 char cmd[5];
 
 // C++ serial interface stuff
-FILE *serPort;
+using namespace LibSerial;
+SerialStream serial_port;
 char readBuffer[1];
 int numBytesRead;
 
@@ -18,15 +20,20 @@ int numBytesRead;
 PololuQik::PololuQik(char serial_port_filename[])
 {
   // Open port for reading and writing
-  serPort = fopen(serial_port_filename, "rw");
-  if(serPort == NULL){
-    printf("Error, can't open serial port ya dingwad");
+  serial_port.Open(serial_port_filename);
+  if(!serial_port.good()){
+    printf("Error, can't open serial port ya dingwad \n");
+    exit(0);
+  }
+  serial_port.SetBaudRate(SerialStreamBuf::BAUD_9600);
+  if(!serial_port.good()){
+    printf("Error setting baud rate, exiting \n");
     exit(0);
   }
   // Tell Pololu Motor Driver to autodetect Baud Rate
   memset(cmd, 0, 5);
   cmd[0] = 0xAA;
-  fwrite(cmd, sizeof(char), 1, serPort);
+  serial_port.write(cmd, 1);
 }
 /*
 Will develop once Set Speed works as expected
@@ -111,7 +118,7 @@ void PololuQik::setM0Speed(int speed)
     cmd[1] = speed;
   }
 
-  fwrite(cmd, sizeof(char), 2, serPort);
+  serial_port.write(cmd, 2);
 }
 
 // Set Speed command for second channel, see above for explanations
@@ -143,7 +150,7 @@ void PololuQik::setM1Speed(int speed)
     cmd[1] = speed;
   }
 
-  fwrite(cmd, sizeof(char), 2, serPort);
+  serial_port.write(cmd, 2);
 }
 
 // Set speeds on both channels
@@ -173,7 +180,7 @@ void PololuQik2s12v10::setM0Brake(unsigned char brake)
   cmd[1] = brake;
 
   // Serial write
-  fwrite(cmd, sizeof(char), 2, serPort);
+  serial_port.write(cmd, 2);
 }
 
 // Brake command for second channel, see above for explanations
@@ -188,7 +195,7 @@ void PololuQik2s12v10::setM1Brake(unsigned char brake)
 
   cmd[0] = QIK_2S12V10_MOTOR_M1_BRAKE;
   cmd[1] = brake;
-  fwrite(cmd, sizeof(char), 2, serPort);
+  serial_port.write(cmd, 2);
 }
 
 // Dual Channel Brake Command
