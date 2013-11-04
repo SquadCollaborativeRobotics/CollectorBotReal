@@ -1,7 +1,7 @@
 #include "ros/ros.h"
 #include "geometry_msgs/Twist.h"
 #include "geometry_msgs/Vector3.h"
-#include "scr_proto/DiffCommand.h"
+#include "scr_proto/SpeedCommand.h"
 #include <eigen3/Eigen/Dense>
 
 // Physical Parameters... What do to with these?
@@ -78,7 +78,7 @@ int main(int argc, char **argv){
   // Subscribe to Command Velocity topic
   ros::Subscriber cmd_vel_sub = n.subscribe("cmd_vel", 1000, commandCallback);
 
-  ros::Publisher motor_pub = n.advertise<scr_proto::DiffCommand>("/motor_command", 1000);
+  ros::Publisher speed_pub = n.advertise<scr_proto::SpeedCommand>("/speed_command", 1000);
 
   ros::Rate loop_rate(10);
 
@@ -94,26 +94,26 @@ int main(int argc, char **argv){
     double left_wheel_omega = wheel_speeds(1);
 
     // Log info to see output of linear system
-    ROS_INFO("Right Motor Desired Speed = [%f]", right_wheel_omega);
-    ROS_INFO("Left Motor Desired Speed = [%f]", left_wheel_omega);
+    //ROS_INFO("Right Motor Desired Speed = [%f]", right_wheel_omega);
+    //ROS_INFO("Left Motor Desired Speed = [%f]", left_wheel_omega);
 
     // Declare Message
-    scr_proto::DiffCommand motor_com;
+    scr_proto::SpeedCommand speed_com;
 
     // Populate Message
     // Need to map omega's to value between -127 and 127 for motor driver
-    right_wheel_omega *= (127.0/motor_max_speed);
-    left_wheel_omega *= (127.0/motor_max_speed);
+    //right_wheel_omega *= (127.0/motor_max_speed);
+    //left_wheel_omega *= (127.0/motor_max_speed);
 
-    motor_com.left_motor = (int)left_wheel_omega;
-    motor_com.right_motor = (int)right_wheel_omega;
+    speed_com.left_motor_w = left_wheel_omega;
+    speed_com.right_motor_w = -right_wheel_omega;
 
     // Log Info for debugging
-    ROS_INFO("Right Motor Command = [%f]", right_wheel_omega);
-    ROS_INFO("Left Motor Command = [%f]", left_wheel_omega);
+    //ROS_INFO("Right Motor Command = [%f]", right_wheel_omega);
+    //ROS_INFO("Left Motor Command = [%f]", left_wheel_omega);
 
     // Publish Message
-    motor_pub.publish(motor_com);
+    speed_pub.publish(speed_com);
 
     // Handle loop rate
     ros::spinOnce();

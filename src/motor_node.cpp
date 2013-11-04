@@ -31,8 +31,8 @@ void motorCallback(const scr_proto::DiffCommand::ConstPtr& msg){
              right_motor_command);
     return;
   }
-  ROS_INFO("Left Motor: [%d]", left_motor_command);
-  ROS_INFO("Right Motor: [%d]", right_motor_command);
+  //ROS_INFO("Left Motor: [%d]", left_motor_command);
+  //ROS_INFO("Right Motor: [%d]", right_motor_command);
   // Hardware call to drivers to change motor speed
   // Assumes Left motor is attached to M0 on pmd
   pmd.setSpeeds(left_motor_command, right_motor_command);
