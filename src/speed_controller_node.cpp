@@ -9,8 +9,8 @@ double PI = 3.141592654;
 double pulses_per_rev = 3200;
 
 // CONTROL VARIABLES
-double Kp = 0.5;
-double Kd = 0.12;
+double Kp = 0.0 ;//.5;
+double Kd = 0.0 ;//.12;
 double Ki = 0.0;
 
 double last_control_time;
@@ -157,6 +157,9 @@ int main(int argc, char **argv){
   left_enc_sub = n.subscribe("left_encoder", 1000, leftEncoderCallback);
   right_enc_sub = n.subscribe("right_encoder", 1000, rightEncoderCallback);
 
+  double kp, ki, kd;
+
+
   last_command_time = ros::Time::now();
 
   // Loop Rate
@@ -164,6 +167,11 @@ int main(int argc, char **argv){
 
   while(ros::ok()){
 
+    // Pull parameters out of rosparam for dynamic control changes
+    if(n.getParam("gains/kp", kp)){ Kp = kp; }
+    if(n.getParam("gains/kd", kd)){ Kd = kd; }
+    if(n.getParam("gains/ki", ki)){ Ki = ki; }
+    
     if((ros::Time::now()-last_command_time) > ros::Duration(10, 0)){
       lw_spd_cmd = 0.0;
       rw_spd_cmd = 0.0;
