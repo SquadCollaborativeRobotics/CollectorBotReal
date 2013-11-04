@@ -20,7 +20,7 @@ PololuQik::PololuQik(char serial_port_filename[])
   // Open port for reading and writing
   serPort = fopen(serial_port_filename, "rw");
   if(serPort == NULL){
-    printf("Error, can't open serial port ya dingwad");
+    printf("Error, can't open serial port ya dingwad\n");
     exit(0);
   }
   // Tell Pololu Motor Driver to autodetect Baud Rate
