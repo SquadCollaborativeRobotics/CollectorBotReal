@@ -4,7 +4,7 @@ project(scr_proto)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS roscpp tf rospy std_msgs genmsg message_generation rosserial_arduino)
+find_package(catkin REQUIRED COMPONENTS roscpp tf rospy std_msgs genmsg message_generation)
 find_package(eigen REQUIRED)
 
 ## System dependencies are found with CMake's conventions
@@ -34,11 +34,10 @@ find_package(eigen REQUIRED)
 # )
 
 ## Generate added messages and services with any dependencies listed here
- generate_messages(
-   DEPENDENCIES
-   std_msgs
-   rosserial_arduino
- )
+generate_messages(
+  DEPENDENCIES
+    std_msgs
+)
 
 ###################################
 ## catkin specific configuration ##
@@ -52,7 +51,7 @@ find_package(eigen REQUIRED)
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES
-  CATKIN_DEPENDS roscpp rospy std_msgs message_runtime rosserial_arduino
+  CATKIN_DEPENDS roscpp rospy rosserial_arduino std_msgs message_runtime
   DEPENDS eigen
 )
 
@@ -82,8 +81,11 @@ target_link_libraries(tf_broadcaster_node ${catkin_LIBRARIES})
 add_executable(odom_broadcaster_node src/OdometryBroadcaster.cpp)
 target_link_libraries(odom_broadcaster_node ${catkin_LIBRARIES})
 
+
+## Declare a cpp executable
+
 add_executable(motor_node src/motor_node.cpp)
-target_link_libraries(motor_node serial_interface ${catkin_LIBRARIES})
+target_link_libraries(motor_node serial_interface ${catkin_LIBRARIES} ${SER_LIB})
 add_dependencies(motor_node scr_proto_generate_messages_cpp)
 
 add_executable(speed_controller_node src/speed_controller_node.cpp)
@@ -92,6 +94,7 @@ add_dependencies(speed_controller_node scr_proto_generate_messages_cpp)
 
 add_executable(base_controller_node src/base_controller_node.cpp)
 target_link_libraries(base_controller_node ${catkin_LIBRARIES})
+add_dependencies(base_controller_node scr_proto_generate_messages_cpp)
 
 
 ## Add cmake target dependencies of the executable/library
