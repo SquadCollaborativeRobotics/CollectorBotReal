@@ -23,12 +23,12 @@ PololuQik::PololuQik(char serial_port_filename[])
   serial_port.Open(serial_port_filename);
   if(!serial_port.good()){
     printf("Error, can't open serial port ya dingwad \n");
-    exit(0);
+    exit(1);
   }
   serial_port.SetBaudRate(SerialStreamBuf::BAUD_9600);
   if(!serial_port.good()){
     printf("Error setting baud rate, exiting \n");
-    exit(0);
+    exit(1);
   }
   // Tell Pololu Motor Driver to autodetect Baud Rate
   memset(cmd, 0, 5);
