@@ -75,6 +75,10 @@ target_link_libraries(serial_interface ${catkin_LIBRARIES} ${SER_LIB})
 
 
 ## Declare a cpp executable
+
+add_executable(odom_test src/Odom_Tester.cpp)
+target_link_libraries(odom_test ${catkin_LIBRARIES})
+
 add_executable(tf_broadcaster_node src/TransformBroadcaster.cpp)
 target_link_libraries(tf_broadcaster_node ${catkin_LIBRARIES})
 
