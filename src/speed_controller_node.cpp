@@ -168,9 +168,9 @@ int main(int argc, char **argv){
   while(ros::ok()){
 
     // Pull parameters out of rosparam for dynamic control changes
-    if(n.getParam("gains/kp", kp)){ Kp = kp; }
-    if(n.getParam("gains/kd", kd)){ Kd = kd; }
-    if(n.getParam("gains/ki", ki)){ Ki = ki; }
+    //if(n.getParam("gains/kp", kp)){ Kp = kp; }
+    //if(n.getParam("gains/kd", kd)){ Kd = kd; }
+    //if(n.getParam("gains/ki", ki)){ Ki = ki; }
     
     if((ros::Time::now()-last_command_time) > ros::Duration(2, 0)){
       lw_spd_cmd = 0.0;
