@@ -172,7 +172,7 @@ int main(int argc, char **argv){
     if(n.getParam("gains/kd", kd)){ Kd = kd; }
     if(n.getParam("gains/ki", ki)){ Ki = ki; }
     
-    if((ros::Time::now()-last_command_time) > ros::Duration(10, 0)){
+    if((ros::Time::now()-last_command_time) > ros::Duration(2, 0)){
       lw_spd_cmd = 0.0;
       rw_spd_cmd = 0.0;
       ROS_INFO("Stale Speed Command, shutting off motors");

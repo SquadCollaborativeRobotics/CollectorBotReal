@@ -16,7 +16,7 @@ double rws=0;
 
 void lw_speed_callback(const std_msgs::Float64::ConstPtr& msg)
 {
-  ROS_INFO("Left wheel speed: [%lf]", msg->data);
+  //ROS_INFO("Left wheel speed: [%lf]", msg->data);
   lws = msg->data;
   // Theta velocity depends on the distance between the wheels
   vth = (lws-rws)/0.2159;
@@ -24,8 +24,8 @@ void lw_speed_callback(const std_msgs::Float64::ConstPtr& msg)
 
 void rw_speed_callback(const std_msgs::Float64::ConstPtr& msg)
 {
-  ROS_INFO("Right wheel speed: [%lf]", msg->data);
-  rws = msg->data;
+  //ROS_INFO("Right wheel speed: [%lf]", msg->data);
+  rws = -msg->data;
   // Theta velocity depends on the distance between the wheels
   vth = (lws-rws)/0.2159;
 }
@@ -48,7 +48,7 @@ int main(int argc, char** argv){
 
   ros::Rate r(100.0);
   while(n.ok()){
-    ROS_INFO("Hey, i'm broadcastin, like a Boss");
+    //ROS_INFO("Hey, i'm broadcastin, like a Boss");
     ros::spinOnce();               // check for incoming messages
     current_time = ros::Time::now();
 
@@ -57,7 +57,7 @@ int main(int argc, char** argv){
 
     vx = (lws+rws)/2 * cos(th);
     vy = (lws+rws)/2 * sin(th);
-    ROS_INFO("vx = %lf, vy = %lf, vth = %lf", vx, vy, vth);
+    //ROS_INFO("vx = %lf, vy = %lf, vth = %lf", vx, vy, vth);
     double delta_x = vx * dt;
     double delta_y = vy * dt;
     double delta_th = vth * dt;

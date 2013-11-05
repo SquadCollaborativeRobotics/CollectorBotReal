@@ -16,7 +16,7 @@ int main(int argc, char** argv){
         tf::Transform(tf::Quaternion(0, 0, 0.0, 1),
                       tf::Vector3(0.0, 0.0, 0.0762)),
         ros::Time::now(),"base_link", "camera_link"));
-    ROS_INFO("Broadcasted base_link to camera_link");
+    //ROS_INFO("Broadcasted base_link to camera_link");
 
     ros::spinOnce();
     r.sleep();
