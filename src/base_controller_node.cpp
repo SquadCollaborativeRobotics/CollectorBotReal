@@ -105,8 +105,8 @@ int main(int argc, char **argv){
     //right_wheel_omega *= (127.0/motor_max_speed);
     //left_wheel_omega *= (127.0/motor_max_speed);
 
-    speed_com.left_motor_w = left_wheel_omega;
-    speed_com.right_motor_w = -right_wheel_omega;
+    speed_com.left_motor_w = -left_wheel_omega;
+    speed_com.right_motor_w = right_wheel_omega;
 
     // Log Info for debugging
     //ROS_INFO("Right Motor Command = [%f]", right_wheel_omega);
