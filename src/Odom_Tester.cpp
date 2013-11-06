@@ -35,7 +35,7 @@ int main(int argc, char **argv){
   while((ros::Time::now() - start) < ros::Duration(15, 0)){
   	loop_rate.sleep();
 	cmd_vel_pub.publish(msg);
-	ROS_INFO("IM PUBLSIHING!!!");
+	ROS_INFO("Shut it down meow!!!");
   }
 
 }

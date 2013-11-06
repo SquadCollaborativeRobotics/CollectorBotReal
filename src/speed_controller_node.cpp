@@ -115,8 +115,8 @@ void control(double lw_cmd, double rw_cmd){
   rw_output += Kp * rw_cur_error + Kd * rw_dedt + Ki * rw_int_error;
   lw_output += Kp * lw_cur_error + Kd * lw_dedt + Ki * lw_int_error;
 
-  ROS_INFO("lw_output = [%g]", lw_output);
-  ROS_INFO("rw_output = [%g]", rw_output);
+  //ROS_INFO("lw_output = [%g]", lw_output);
+  //ROS_INFO("rw_output = [%g]", rw_output);
 
   // Write value to Motor Driver
   assign(rw_output, lw_output);
