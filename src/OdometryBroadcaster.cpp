@@ -20,7 +20,7 @@ double rws=0;
 
 ros::Time last_lw_time, last_rw_time;
 
-
+bool hasNewSpeeds = true;
 
 void lw_speed_callback(const std_msgs::Float64::ConstPtr& msg)
 {
