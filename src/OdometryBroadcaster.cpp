@@ -14,20 +14,30 @@ double vth = 0.0;
 double lws=0;
 double rws=0;
 
+#define PI 3.1415926
+#define WHEEL_DIAMETER 0.123825 //meters
+#define WHEEL_SEPARATION 0.2159
+
+ros::Time last_lw_time, last_rw_time;
+
+
+
 void lw_speed_callback(const std_msgs::Float64::ConstPtr& msg)
 {
+  last_lw_time = ros::Time::now();
   //ROS_INFO("Left wheel speed: [%lf]", msg->data);
-  lws = msg->data;
+  lws = msg->data * WHEEL_DIAMETER / 2;
   // Theta velocity depends on the distance between the wheels
-  vth = (lws-rws)/0.2159;
+  vth = (lws-rws)/WHEEL_SEPARATION;
 }
 
 void rw_speed_callback(const std_msgs::Float64::ConstPtr& msg)
 {
+  last_rw_time = ros::Time::now();
   //ROS_INFO("Right wheel speed: [%lf]", msg->data);
-  rws = -msg->data;
+  rws = -msg->data * WHEEL_DIAMETER / 2;
   // Theta velocity depends on the distance between the wheels
-  vth = (lws-rws)/0.2159;
+  vth = (lws-rws)/WHEEL_SEPARATION;
 }
 
 
@@ -36,10 +46,10 @@ int main(int argc, char** argv){
 
   ros::NodeHandle n;
 
-  ros::Subscriber lw_sub = n.subscribe("lw_speed", 1000, lw_speed_callback);
-  ros::Subscriber rw_sub = n.subscribe("rw_speed", 1000, rw_speed_callback);
+  ros::Subscriber lw_sub = n.subscribe("lw_speed", 10, lw_speed_callback);
+  ros::Subscriber rw_sub = n.subscribe("rw_speed", 10, rw_speed_callback);
 
-  ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("odom", 50);
+  ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("odom", 1);
   tf::TransformBroadcaster odom_broadcaster;
 
   ros::Time current_time, last_time;
@@ -50,21 +60,29 @@ int main(int argc, char** argv){
   while(n.ok()){
     //ROS_INFO("Hey, i'm broadcastin, like a Boss");
     ros::spinOnce();               // check for incoming messages
+
     current_time = ros::Time::now();
 
-    //compute odometry in a typical way given the velocities of the robot
-    double dt = (current_time - last_time).toSec();
+    if ((current_time - last_lw_time < ros::Duration(1.0)) && (current_time - last_lw_time < ros::Duration(1.0)))
+    {
+      //compute odometry in a typical way given the velocities of the robot
+      double dt = (current_time - last_time).toSec();
 
-    vx = (lws+rws)/2 * cos(th);
-    vy = (lws+rws)/2 * sin(th);
-    //ROS_INFO("vx = %lf, vy = %lf, vth = %lf", vx, vy, vth);
-    double delta_x = vx * dt;
-    double delta_y = vy * dt;
-    double delta_th = vth * dt;
+      vx = (lws+rws)/2 * cos(th);
+      vy = (lws+rws)/2 * sin(th);
+      //ROS_INFO("vx = %lf, vy = %lf, vth = %lf", vx, vy, vth);
+      double delta_x = vx * dt;
+      double delta_y = vy * dt;
+      double delta_th = vth * dt;
 
-    x += delta_x;
-    y += delta_y;
-    th += delta_th;
+      x += delta_x;
+      y += delta_y;
+      th += delta_th;
+    }
+    else
+    {
+      vx = vy = vth = 0;
+    }
 
     //since all odometry is 6DOF we'll need a quaternion created from yaw
     geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(th);
