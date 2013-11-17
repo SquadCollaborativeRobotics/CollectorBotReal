@@ -4,6 +4,14 @@
        specific ROS_ROOT and ROS_PACKAGE_PATH values -->
   <machine name="local_alt" address="localhost" default="true"/>
 
+
+  <!-- 
+  <include file="$(find scr_proto)/launch/base_controller_arduino.launch" />
+  -->
+  <!-- 
+  <include file="$(find scr_proto)/launch/base_controller_serial.launch" />
+  -->
+
   <!-- odometry broadcast node -->
   <node name="collector_odom_broadcaster_node" pkg="scr_proto" type="odom_broadcaster_node">
     <param name="broadcast_rate" value="10" type="int" />
