@@ -8,7 +8,7 @@ int main(int argc, char** argv){
 
   tf::TransformBroadcaster broadcaster;
 
-  ros::Rate r(10);
+  ros::Rate r(50);
   while(n.ok()){
 
     broadcaster.sendTransform(

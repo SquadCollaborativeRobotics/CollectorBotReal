@@ -1,7 +1,7 @@
 #include <ros/ros.h>
 #include <tf/transform_broadcaster.h>
 #include <nav_msgs/Odometry.h>
-#include "std_msgs/Float64.h"
+#include "std_msgs/Float32.h"
 
 double x = 0.0;
 double y = 0.0;
@@ -22,7 +22,7 @@ ros::Time last_lw_time, last_rw_time;
 
 bool hasNewSpeeds = true;
 
-void lw_speed_callback(const std_msgs::Float64::ConstPtr& msg)
+void lw_speed_callback(const std_msgs::Float32::ConstPtr& msg)
 {
   last_lw_time = ros::Time::now();
   //ROS_INFO("Left wheel speed: [%lf]", msg->data);
@@ -31,7 +31,7 @@ void lw_speed_callback(const std_msgs::Float64::ConstPtr& msg)
   vth = (lws-rws)/WHEEL_SEPARATION;
 }
 
-void rw_speed_callback(const std_msgs::Float64::ConstPtr& msg)
+void rw_speed_callback(const std_msgs::Float32::ConstPtr& msg)
 {
   last_rw_time = ros::Time::now();
   //ROS_INFO("Right wheel speed: [%lf]", msg->data);
@@ -56,7 +56,7 @@ int main(int argc, char** argv){
   current_time = ros::Time::now();
   last_time = ros::Time::now();
 
-  ros::Rate r(100.0);
+  ros::Rate r(50.0);
   while(n.ok()){
     //ROS_INFO("Hey, i'm broadcastin, like a Boss");
     ros::spinOnce();               // check for incoming messages
