@@ -63,7 +63,7 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
-  include ${catkin_INCLUDE_DIRS} include/
+  include ${catkin_INCLUDE_DIRS}
 )
 
 set(SER_LIB /usr/lib/libserial.so.0.0.0)
@@ -78,9 +78,6 @@ target_link_libraries(serial_interface ${catkin_LIBRARIES} ${SER_LIB})
 
 add_executable(odom_test src/Odom_Tester.cpp)
 target_link_libraries(odom_test ${catkin_LIBRARIES})
-
-add_executable(tf_broadcaster_node src/TransformBroadcaster.cpp)
-target_link_libraries(tf_broadcaster_node ${catkin_LIBRARIES})
 
 add_executable(odom_broadcaster_node src/OdometryBroadcaster.cpp)
 target_link_libraries(odom_broadcaster_node ${catkin_LIBRARIES})
