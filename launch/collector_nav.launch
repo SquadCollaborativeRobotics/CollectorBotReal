@@ -19,6 +19,9 @@
   </node>
   -->
   
+  <node name="depthimage_to_laserscan" pkg="depthimage_to_laserscan" args="image:=/camera/depth/image_raw">
+  </node>
+
   <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
     <!--remap from="scan" to="base_scan"/-->
     <param name="odom_frame" value="odom"/>
