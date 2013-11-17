@@ -11,11 +11,6 @@
     <param name="pose/y" value="5" type="double" />
     <param name="pose/theta" value="0" type="double" />
   </node>
-  
-  <!-- transform broadcast node -->
-  <node name="collector_tf_broadcaster_node" pkg="scr_proto" type="tf_broadcaster_node">
-    <param name="broadcast_rate" value="1" type="int" />
-  </node>
 
   <!--
   <node name="collector_rvis" pkg="rviz" type="rviz" />

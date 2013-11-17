@@ -49,8 +49,14 @@ int main(int argc, char** argv){
   ros::Subscriber lw_sub = n.subscribe("lw_speed", 10, lw_speed_callback);
   ros::Subscriber rw_sub = n.subscribe("rw_speed", 10, rw_speed_callback);
 
+
+
   ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("odom", 1);
+
+
   tf::TransformBroadcaster odom_broadcaster;
+
+  tf::TransformBroadcaster camera_link_broadcaster;
 
   ros::Time current_time, last_time;
   current_time = ros::Time::now();
@@ -62,6 +68,14 @@ int main(int argc, char** argv){
     ros::spinOnce();               // check for incoming messages
 
     current_time = ros::Time::now();
+
+    //Broadcast the base link to kinect
+    camera_link_broadcaster.sendTransform(
+        tf::StampedTransform(
+        tf::Transform(tf::Quaternion(0, 0, 0.0, 1),
+                      tf::Vector3(0.0, 0.0, 0.0762)),
+        ros::Time::now(),"base_link", "camera_link"));
+
 
     if ((current_time - last_lw_time < ros::Duration(1.0)) && (current_time - last_lw_time < ros::Duration(1.0)))
     {
