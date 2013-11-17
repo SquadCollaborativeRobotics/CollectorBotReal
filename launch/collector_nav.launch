@@ -19,7 +19,7 @@
   </node>
   -->
   
-  <node name="depthimage_to_laserscan" pkg="depthimage_to_laserscan" args="image:=/camera/depth/image_raw">
+  <node name="kinect_laser" type="depthimage_to_laserscan" pkg="depthimage_to_laserscan" args="image:=/camera/depth/image_raw">
   </node>
 
   <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
