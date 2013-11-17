@@ -16,9 +16,11 @@
   <node name="collector_rvis" pkg="rviz" type="rviz" />
   -->
 
+  <!--
   <node name="rqt_publisher" pkg="rqt_publisher" type="rqt_publisher" />
-
-  <!--- Kalman Filter -->
+  -->
+  
+  <!--- Kalman Filter
   <node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf">
     <param name="output_frame" value="odom"/>
     <param name="freq" value="30.0"/>
@@ -29,6 +31,7 @@
     <param name="debug" value="false"/>
     <param name="self_diagnose" value="false"/>
   </node>
+  -->
   <!-- 
   <include file="$(find freenect_launch)/launch/freenect.launch" />
   -->
