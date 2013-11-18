@@ -2,8 +2,9 @@
 <launch>
   <master auto="start"/>
 
-  <!-- Run the map server -->
+  <!-- Run the map server
   <node name="map_server" pkg="map_server" type="map_server" args="$(find scr_proto)/navstack_cfg/testmap.yaml"/>
+  -->
 
   <!--- Run AMCL 
   <include file="$(find amcl)/examples/amcl_omni.launch" />
@@ -26,8 +27,8 @@
     <!--remap from="scan" to="base_scan"/-->
     <param name="odom_frame" value="odom"/>
     <param name="map_update_interval" value="5.0"/>
-    <param name="maxUrange" value="8.0"/> <!-- The maximum usable range of the laser. A beam is cropped to this value. -->
-    <param name="maxRange" value="9.0"/> <!-- The maximum range of the sensor. If regions with no obstacles within the range of the sensor should appear as free space in the map, set maxUrange < maximum range of the real sensor <= maxRange.-->
+    <param name="maxUrange" value="4"/> <!-- The maximum usable range of the laser. A beam is cropped to this value. -->
+    <param name="maxRange" value="4.1"/> <!-- The maximum range of the sensor. If regions with no obstacles within the range of the sensor should appear as free space in the map, set maxUrange < maximum range of the real sensor <= maxRange.-->
     <param name="sigma" value="0.05"/>
     <param name="kernelSize" value="1.0"/>
     <param name="lstep" value="0.05"/>
