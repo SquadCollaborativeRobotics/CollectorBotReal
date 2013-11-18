@@ -27,8 +27,8 @@
     <!--remap from="scan" to="base_scan"/-->
     <param name="odom_frame" value="odom"/>
     <param name="map_update_interval" value="5.0"/>
-    <param name="maxUrange" value="4"/> <!-- The maximum usable range of the laser. A beam is cropped to this value. -->
-    <param name="maxRange" value="4.1"/> <!-- The maximum range of the sensor. If regions with no obstacles within the range of the sensor should appear as free space in the map, set maxUrange < maximum range of the real sensor <= maxRange.-->
+    <param name="maxUrange" value="4.0"/> <!-- The maximum usable range of the laser. A beam is cropped to this value. -->
+    <param name="maxRange" value="4.0"/> <!-- The maximum range of the sensor. If regions with no obstacles within the range of the sensor should appear as free space in the map, set maxUrange < maximum range of the real sensor <= maxRange.-->
     <param name="sigma" value="0.05"/>
     <param name="kernelSize" value="1.0"/>
     <param name="lstep" value="0.05"/>
@@ -37,19 +37,19 @@
     <param name="lsigma" value="0.075"/>
     <param name="ogain" value="3.0"/>
     <param name="lskip" value="0"/>
-    <param name="srr" value="0.01"/>
-    <param name="srt" value="0.02"/>
-    <param name="str" value="0.01"/>
-    <param name="stt" value="0.02"/>
+    <param name="srr" value="0.03"/>
+    <param name="srt" value="0.06"/>
+    <param name="str" value="0.03"/>
+    <param name="stt" value="0.06"/>
     <param name="linearUpdate" value="0.3"/> <!-- Process a scan each time the robot translates this far -->
     <param name="angularUpdate" value="0.3"/> <!--Process a scan each time the robot rotates this far; 0.1 represents 5.7 degress -->
     <param name="temporalUpdate" value="-1.0"/>
     <param name="resampleThreshold" value="0.5"/>
-    <param name="particles" value="80"/>
-    <param name="xmin" value="-50.0"/>
-    <param name="ymin" value="-50.0"/>
-    <param name="xmax" value="50.0"/>
-    <param name="ymax" value="50.0"/>
+    <param name="particles" value="200"/>
+    <param name="xmin" value="-25.0"/>
+    <param name="ymin" value="-25.0"/>
+    <param name="xmax" value="25.0"/>
+    <param name="ymax" value="25.0"/>
     <param name="delta" value="0.05"/>
     <param name="llsamplerange" value="0.01"/>
     <param name="llsamplestep" value="0.01"/>
