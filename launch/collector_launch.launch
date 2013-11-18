@@ -4,6 +4,7 @@
        specific ROS_ROOT and ROS_PACKAGE_PATH values -->
   <machine name="local_alt" address="localhost" default="true"/>
 
+  <!-- Run the arduino code with serial comms -->
   <include file="$(find scr_proto)/launch/base_controller_arduino.launch" />
   
 
@@ -15,15 +16,7 @@
     <param name="pose/theta" value="0" type="double" />
   </node>
 
-  <!--
-  <node name="collector_rvis" pkg="rviz" type="rviz" />
-  -->
-
-  <!--
-  <node name="rqt_publisher" pkg="rqt_publisher" type="rqt_publisher" />
-  -->
-  
-  <!--- Kalman Filter
+  <!--- TODO: Kalman Filter
   <node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf">
     <param name="output_frame" value="odom"/>
     <param name="freq" value="30.0"/>
@@ -35,6 +28,7 @@
     <param name="self_diagnose" value="false"/>
   </node>
   -->
+  
   <!-- 
   <include file="$(find freenect_launch)/launch/freenect.launch" />
   -->
