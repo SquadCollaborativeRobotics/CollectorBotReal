@@ -7,7 +7,7 @@
   -->
 
   <!--- Run AMCL 
-  <include file="$(find amcl)/examples/amcl_omni.launch" />
+  <include file="$(find amcl)/examples/amcl_diff.launch" />
   -->
 
   <!--
