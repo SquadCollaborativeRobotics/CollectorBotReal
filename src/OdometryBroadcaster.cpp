@@ -16,7 +16,7 @@ double rws=0;
 
 #define PI 3.1415926
 #define WHEEL_DIAMETER 0.123825 //meters
-#define WHEEL_SEPARATION 0.2159
+#define WHEEL_SEPARATION (0.2159 * 2)
 
 ros::Time last_lw_time, last_rw_time;
 
@@ -26,18 +26,18 @@ void lw_speed_callback(const std_msgs::Float32::ConstPtr& msg)
 {
   last_lw_time = ros::Time::now();
   //ROS_INFO("Left wheel speed: [%lf]", msg->data);
-  lws = msg->data * WHEEL_DIAMETER / 2;
+  lws = -msg->data * WHEEL_DIAMETER / 2;
   // Theta velocity depends on the distance between the wheels
-  vth = (lws-rws)/WHEEL_SEPARATION;
+  vth = -(lws-rws)/WHEEL_SEPARATION;
 }
 
 void rw_speed_callback(const std_msgs::Float32::ConstPtr& msg)
 {
   last_rw_time = ros::Time::now();
   //ROS_INFO("Right wheel speed: [%lf]", msg->data);
-  rws = -msg->data * WHEEL_DIAMETER / 2;
+  rws = msg->data * WHEEL_DIAMETER / 2;
   // Theta velocity depends on the distance between the wheels
-  vth = (lws-rws)/WHEEL_SEPARATION;
+  vth = -(lws-rws)/WHEEL_SEPARATION;
 }
 
 
