@@ -1,3 +1,5 @@
+// http://wiki.ros.org/navigation/Tutorials/RobotSetup/Odom
+
 #include <ros/ros.h>
 #include <tf/transform_broadcaster.h>
 #include <nav_msgs/Odometry.h>
@@ -16,12 +18,14 @@ double lws = 0; // Left wheel speed (angular velocity)
 double rws = 0; // Right wheel speed (angular velocity)
 
 #define PI 3.1415926
-// Diameter = 0.123825
-#define WHEEL_RADIUS (0.123825 / 2) //meters
+
+#define WHEEL_DIAMETER 0.123825 //meters
+#define WHEEL_RADIUS WHEEL_DIAMETER/2.0 //meters
+#define WHEEL_SEPARATION (0.445-(0.01*2)) // meters
+// Distance between two wheels along axis of rotation.
 // Wheel separation is the distance between the centers of the 2 drive wheels
 // the numbers here are: 0.445 => distance between the far edge of each wheel
-//                   0.01 * 2 => 2 cm wheels, so the distance is 0.01*2 
-#define WHEEL_SEPARATION (0.445-(0.01*2)) //meters
+//                   0.01 * 2 => 2 cm wheels, so the distance is 0.01*2
 
 // Last time received callback for left or right wheel.
 ros::Time last_lw_time, last_rw_time;
@@ -33,6 +37,7 @@ void lw_speed_callback(const std_msgs::Float32::ConstPtr& msg)
 {
   last_lw_time = ros::Time::now();
   //ROS_INFO("Left wheel speed: [%lf]", msg->data);
+  // NOTE : Left wheel speed is opposite because motor is reversed on axis
   lws = -msg->data;
 }
 
@@ -43,6 +48,7 @@ void rw_speed_callback(const std_msgs::Float32::ConstPtr& msg)
   //ROS_INFO("Right wheel speed: [%lf]", msg->data);
   rws = msg->data;
 }
+
 
 int main(int argc, char** argv){
   ros::init(argc, argv, "odometry_publisher");
@@ -58,10 +64,11 @@ int main(int argc, char** argv){
 
   // Transform Broadcasters
   tf::TransformBroadcaster odom_broadcaster;
+
   tf::TransformBroadcaster camera_link_broadcaster;
 
   // Initialize variables for loop
-  ros::Rate r(50.0);
+  ros::Rate r(60.0);
   ros::Time current_time = ros::Time::now();
   ros::Time last_time = ros::Time::now();
 
@@ -76,7 +83,6 @@ int main(int argc, char** argv){
                       tf::Vector3(0.0, 0.0, 0.0762)),
         ros::Time::now(),"base_link", "camera_link"));
 
-    current_time = ros::Time::now();
 
     // Only update values if the last updated wheel speeds were within the last second, otherwise zero them out
     if ((current_time - last_lw_time < ros::Duration(1.0)) && (current_time - last_rw_time < ros::Duration(1.0)))
@@ -91,6 +97,7 @@ int main(int argc, char** argv){
       vy  = (WHEEL_RADIUS) * (lws + rws) / 2.0 * sin(th);
       vth = (WHEEL_RADIUS / WHEEL_SEPARATION) * (rws - lws);
 
+      // Update positions with velocity integrated euler step
       x  += vx * dt;
       y  += vy * dt;
       th += vth * dt;
