@@ -18,7 +18,11 @@ double rws = 0; // Right wheel speed (angular velocity)
 #define PI 3.1415926
 #define WHEEL_DIAMETER 0.123825 //meters
 #define WHEEL_RADIUS WHEEL_DIAMETER/2.0 //meters
-#define WHEEL_SEPARATION 0.4318 // meters, Distance between two wheels along axis of rotation.
+#define WHEEL_SEPARATION (0.445-(0.01*2)) // meters
+// Distance between two wheels along axis of rotation.
+// Wheel separation is the distance between the centers of the 2 drive wheels
+// the numbers here are: 0.445 => distance between the far edge of each wheel
+//                   0.01 * 2 => 2 cm wheels, so the distance is 0.01*2 
 
 // Last time received callback for left or right wheel.
 ros::Time last_lw_time, last_rw_time;
@@ -42,6 +46,7 @@ void rw_speed_callback(const std_msgs::Float32::ConstPtr& msg)
   rws = -msg->data;
 }
 
+
 int main(int argc, char** argv){
   ros::init(argc, argv, "odometry_publisher");
 
@@ -56,10 +61,11 @@ int main(int argc, char** argv){
 
   // Transform Broadcasters
   tf::TransformBroadcaster odom_broadcaster;
+
   tf::TransformBroadcaster camera_link_broadcaster;
 
   // Initialize variables for loop
-  ros::Rate r(50.0);
+  ros::Rate r(60.0);
   ros::Time current_time = ros::Time::now();
   ros::Time last_time = ros::Time::now();
 
@@ -94,7 +100,7 @@ int main(int argc, char** argv){
     }
     else
     {
-      ROS_INFO("Last updated wheel speeds not within 1 second, zeroing out velocities.");
+      ROS_ERROR("Have not received a wheel speed update in: %lf", (current_time-last_lw_time).toSec());
       vx = vy = vth = 0;
     }
 
