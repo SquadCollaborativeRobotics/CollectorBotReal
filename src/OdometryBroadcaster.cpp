@@ -16,7 +16,11 @@ double rws=0;
 
 #define PI 3.1415926
 #define WHEEL_DIAMETER 0.123825 //meters
-#define WHEEL_SEPARATION (0.2159 * 2)
+#define HALF_WHEEL_DIAMETER WHEEL_DIAMETER / 2
+//wheel separation is the distance between the centers of the 2 drive wheels
+//the numbers here are: 0.445 => distance between the far edge of each wheel
+//                   0.01 * 2 => 2 cm wheels, so the distance is 0.01*2 
+#define WHEEL_SEPARATION (0.445-(0.01*2)) //meters
 
 ros::Time last_lw_time, last_rw_time;
 
@@ -26,7 +30,7 @@ void lw_speed_callback(const std_msgs::Float32::ConstPtr& msg)
 {
   last_lw_time = ros::Time::now();
   //ROS_INFO("Left wheel speed: [%lf]", msg->data);
-  lws = -msg->data * WHEEL_DIAMETER / 2;
+  lws = -msg->data * HALF_WHEEL_DIAMETER;
   // Theta velocity depends on the distance between the wheels
   vth = -(lws-rws)/WHEEL_SEPARATION;
 }
@@ -35,7 +39,7 @@ void rw_speed_callback(const std_msgs::Float32::ConstPtr& msg)
 {
   last_rw_time = ros::Time::now();
   //ROS_INFO("Right wheel speed: [%lf]", msg->data);
-  rws = msg->data * WHEEL_DIAMETER / 2;
+  rws = msg->data * HALF_WHEEL_DIAMETER;
   // Theta velocity depends on the distance between the wheels
   vth = -(lws-rws)/WHEEL_SEPARATION;
 }
@@ -49,25 +53,19 @@ int main(int argc, char** argv){
   ros::Subscriber lw_sub = n.subscribe("lw_speed", 10, lw_speed_callback);
   ros::Subscriber rw_sub = n.subscribe("rw_speed", 10, rw_speed_callback);
 
-
-
   ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("odom", 1);
 
-
   tf::TransformBroadcaster odom_broadcaster;
-
   tf::TransformBroadcaster camera_link_broadcaster;
 
   ros::Time current_time, last_time;
   current_time = ros::Time::now();
   last_time = ros::Time::now();
 
-  ros::Rate r(50.0);
+  ros::Rate r(60.0);
   while(n.ok()){
     //ROS_INFO("Hey, i'm broadcastin, like a Boss");
     ros::spinOnce();               // check for incoming messages
-
-    current_time = ros::Time::now();
 
     //Broadcast the base link to kinect
     camera_link_broadcaster.sendTransform(
@@ -76,7 +74,9 @@ int main(int argc, char** argv){
                       tf::Vector3(0.0, 0.0, 0.0762)),
         ros::Time::now(),"base_link", "camera_link"));
 
+    current_time = ros::Time::now();
 
+    ///If we stop receiving messages for a specified duration, stop moving the bot.  Something bad happened
     if ((current_time - last_lw_time < ros::Duration(1.0)) && (current_time - last_lw_time < ros::Duration(1.0)))
     {
       //compute odometry in a typical way given the velocities of the robot
@@ -95,6 +95,7 @@ int main(int argc, char** argv){
     }
     else
     {
+      ROS_ERROR("Have not received a wheel speed update in: %lf", (current_time-last_lw_time).toSec());
       vx = vy = vth = 0;
     }
 
