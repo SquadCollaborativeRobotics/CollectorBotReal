@@ -30,7 +30,8 @@ void lw_speed_callback(const std_msgs::Float32::ConstPtr& msg)
 {
   last_lw_time = ros::Time::now();
   //ROS_INFO("Left wheel speed: [%lf]", msg->data);
-  lws = msg->data;
+  // NOTE : Left wheel speed is opposite because motor is reversed on axis
+  lws = -msg->data;
 }
 
 // Update current right wheel speed
@@ -84,15 +85,12 @@ int main(int argc, char** argv){
       vx  = (WHEEL_RADIUS / 2.0) * (lws + rws) * cos(th);
       vy  = (WHEEL_RADIUS / 2.0) * (lws + rws) * sin(th);
       vth = (WHEEL_RADIUS / WHEEL_SEPARATION) * (lws - rws);
-
       //ROS_INFO("vx = %lf, vy = %lf, vth = %lf", vx, vy, vth);
-      double delta_x  = vx * dt;
-      double delta_y  = vy * dt;
-      double delta_th = vth * dt;
 
-      x  += delta_x;
-      y  += delta_y;
-      th += delta_th;
+      // Update positions with velocity integrated euler step
+      x  += vx * dt;
+      y  += vy * dt;
+      th += vth * dt;
     }
     else
     {
