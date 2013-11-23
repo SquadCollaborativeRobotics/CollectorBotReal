@@ -108,6 +108,9 @@ int main(int argc, char** argv){
       vx = vy = vth = 0;
     }
 
+    // Update last time to now and rate limit loop speed
+    last_time = current_time;
+
     // Since all odometry is 6DOF we'll need a quaternion created from yaw
     geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(th);
 
@@ -144,9 +147,6 @@ int main(int argc, char** argv){
 
     // Publish the message
     odom_pub.publish(odom);
-
-    // Update last time to now and rate limit loop speed
-    last_time = current_time;
 
     // Update callbacks after the fact, for next loop iteration.
     ros::spinOnce();
