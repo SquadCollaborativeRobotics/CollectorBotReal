@@ -90,15 +90,10 @@ int main(int argc, char** argv){
       vx  = (WHEEL_RADIUS) * (lws + rws) / 2.0 * cos(th);
       vy  = (WHEEL_RADIUS) * (lws + rws) / 2.0 * sin(th);
       vth = (WHEEL_RADIUS / WHEEL_SEPARATION) * (rws - lws);
-
-      //ROS_INFO("vx = %lf, vy = %lf, vth = %lf", vx, vy, vth);
-      double delta_x  = vx * dt;
-      double delta_y  = vy * dt;
-      double delta_th = vth * dt;
-
-      x  += delta_x;
-      y  += delta_y;
-      th += delta_th;
+      
+      x  += vx * dt;
+      y  += vy * dt;
+      th += vth * dt;
     }
     else
     {
