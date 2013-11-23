@@ -16,10 +16,10 @@ double lws = 0; // Left wheel speed (angular velocity)
 double rws = 0; // Right wheel speed (angular velocity)
 
 #define PI 3.1415926
+// Diameter = 0.123825
 #define WHEEL_RADIUS (0.123825 / 2) //meters
-#define HALF_WHEEL_RADIUS (WHEEL_RADIUS / 2)
-//wheel separation is the distance between the centers of the 2 drive wheels
-//the numbers here are: 0.445 => distance between the far edge of each wheel
+// Wheel separation is the distance between the centers of the 2 drive wheels
+// the numbers here are: 0.445 => distance between the far edge of each wheel
 //                   0.01 * 2 => 2 cm wheels, so the distance is 0.01*2 
 #define WHEEL_SEPARATION (0.445-(0.01*2)) //meters
 
@@ -90,7 +90,7 @@ int main(int argc, char** argv){
       vx  = (WHEEL_RADIUS) * (lws + rws) / 2.0 * cos(th);
       vy  = (WHEEL_RADIUS) * (lws + rws) / 2.0 * sin(th);
       vth = (WHEEL_RADIUS / WHEEL_SEPARATION) * (rws - lws);
-      
+
       x  += vx * dt;
       y  += vy * dt;
       th += vth * dt;
