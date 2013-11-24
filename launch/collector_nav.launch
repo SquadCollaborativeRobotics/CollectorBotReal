@@ -4,7 +4,6 @@
 
   <!-- Run the map server -->
   <node name="map_server" pkg="map_server" type="map_server" args="$(find scr_proto)/navstack_cfg/testing127.yaml"/>
- 
 
   <!-- - Run AMCL  -->
   <node pkg="amcl" type="amcl" name="amcl" output="screen">
@@ -42,17 +41,14 @@
     <param name="recovery_alpha_fast" value="0.0"/>
   </node>
 
-  <!-- <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
     <rosparam file="$(find scr_proto)/navstack_cfg/costmap_common_params.yaml" command="load" ns="global_costmap" />
     <rosparam file="$(find scr_proto)/navstack_cfg/costmap_common_params.yaml" command="load" ns="local_costmap" />
     <rosparam file="$(find scr_proto)/navstack_cfg/local_costmap_params.yaml" command="load" />
     <rosparam file="$(find scr_proto)/navstack_cfg/global_costmap_params.yaml" command="load" />
     <rosparam file="$(find scr_proto)/navstack_cfg/base_local_planner_params.yaml" command="load" />
-  </node> -->
+  </node>
 
-  
-  
-  
   <node name="kinect_laser" type="depthimage_to_laserscan" pkg="depthimage_to_laserscan" args="image:=/camera/depth/image_raw">
   </node>
 
