@@ -2,59 +2,58 @@
 <launch>
   <master auto="start"/>
 
-  <!-- Run the map server
-  <node name="map_server" pkg="map_server" type="map_server" args="$(find scr_proto)/navstack_cfg/testmap.yaml"/>
-  -->
+  <!-- Run the map server -->
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find scr_proto)/navstack_cfg/testing127.yaml"/>
+ 
 
-  <!--- Run AMCL 
-  <include file="$(find amcl)/examples/amcl_diff.launch" />
+  <!-- - Run AMCL  -->
+  <node pkg="amcl" type="amcl" name="amcl" output="screen">
+    <!-- Publish scans from best pose at a max of 10 Hz -->
+    <param name="odom_model_type" value="diff"/>
+    <param name="odom_alpha5" value="0.1"/>
+    <param name="transform_tolerance" value="0.2" />
+    <param name="gui_publish_rate" value="10.0"/>
+    <param name="laser_max_beams" value="60"/>
+    <param name="min_particles" value="1000"/>
+    <param name="max_particles" value="10000"/>
+    <param name="kld_err" value="0.05"/>
+    <param name="kld_z" value="0.99"/>
+    <param name="odom_alpha1" value="0.2"/>
+    <param name="odom_alpha2" value="0.2"/>
+    <!-- translation std dev, m -->
+    <param name="odom_alpha3" value="0.8"/>
+    <param name="odom_alpha4" value="0.2"/>
+    <param name="laser_z_hit" value="0.5"/>
+    <param name="laser_z_short" value="0.05"/>
+    <param name="laser_z_max" value="0.05"/>
+    <param name="laser_z_rand" value="0.5"/>
+    <param name="laser_sigma_hit" value="0.2"/>
+    <param name="laser_lambda_short" value="0.1"/>
+    <param name="laser_lambda_short" value="0.1"/>
+    <param name="laser_model_type" value="likelihood_field"/>
+    <!-- <param name="laser_model_type" value="beam"/> -->
+    <param name="laser_likelihood_max_dist" value="2.0"/>
+    <param name="update_min_d" value="0.2"/>
+    <param name="update_min_a" value="0.5"/>
+    <param name="odom_frame_id" value="odom"/>
+    <param name="resample_interval" value="1"/>
+    <param name="transform_tolerance" value="0.1"/>
+    <param name="recovery_alpha_slow" value="0.0"/>
+    <param name="recovery_alpha_fast" value="0.0"/>
+  </node>
 
-  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+  <!-- <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
     <rosparam file="$(find scr_proto)/navstack_cfg/costmap_common_params.yaml" command="load" ns="global_costmap" />
     <rosparam file="$(find scr_proto)/navstack_cfg/costmap_common_params.yaml" command="load" ns="local_costmap" />
     <rosparam file="$(find scr_proto)/navstack_cfg/local_costmap_params.yaml" command="load" />
     <rosparam file="$(find scr_proto)/navstack_cfg/global_costmap_params.yaml" command="load" />
     <rosparam file="$(find scr_proto)/navstack_cfg/base_local_planner_params.yaml" command="load" />
-  </node>
+  </node> -->
 
-  -->
+  
   
   
   <node name="kinect_laser" type="depthimage_to_laserscan" pkg="depthimage_to_laserscan" args="image:=/camera/depth/image_raw">
-  </node>
-
-  <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
-    <!--remap from="scan" to="base_scan"/-->
-    <param name="odom_frame" value="odom"/>
-    <param name="map_update_interval" value="3.0"/>
-    <param name="maxUrange" value="4.0"/> <!-- The maximum usable range of the laser. A beam is cropped to this value. -->
-    <param name="maxRange" value="4.0"/> <!-- The maximum range of the sensor. If regions with no obstacles within the range of the sensor should appear as free space in the map, set maxUrange < maximum range of the real sensor <= maxRange.-->
-    <param name="sigma" value="0.05"/>
-    <param name="kernelSize" value="1.0"/>
-    <param name="lstep" value="0.05"/>
-    <param name="astep" value="0.05"/>
-    <param name="iterations" value="5"/>
-    <param name="lsigma" value="0.075"/>
-    <param name="ogain" value="3.0"/>
-    <param name="lskip" value="0"/>
-    <param name="srr" value="0.03"/>
-    <param name="srt" value="0.06"/>
-    <param name="str" value="0.03"/>
-    <param name="stt" value="0.06"/>
-    <param name="linearUpdate" value="0.1"/> <!-- Process a scan each time the robot translates this far -->
-    <param name="angularUpdate" value="0.1"/> <!--Process a scan each time the robot rotates this far; 0.1 represents 5.7 degress -->
-    <param name="temporalUpdate" value="-1.0"/>
-    <param name="resampleThreshold" value="0.5"/>
-    <param name="particles" value="200"/>
-    <param name="xmin" value="-25.0"/>
-    <param name="ymin" value="-25.0"/>
-    <param name="xmax" value="25.0"/>
-    <param name="ymax" value="25.0"/>
-    <param name="delta" value="0.05"/>
-    <param name="llsamplerange" value="0.01"/>
-    <param name="llsamplestep" value="0.01"/>
-    <param name="lasamplerange" value="0.005"/>
-    <param name="lasamplestep" value="0.005"/>
   </node>
 
 </launch>
