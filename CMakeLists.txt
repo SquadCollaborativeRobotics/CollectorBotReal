@@ -66,11 +66,11 @@ include_directories(
   include ${catkin_INCLUDE_DIRS}
 )
 
-set(SER_LIB /usr/lib/libserial.so.0.0.0)
+#set(SER_LIB /usr/lib/libserial.so.0.0.0)
 
 ## Declare a cpp library
-add_library(serial_interface src/serial_interface.cpp)
-target_link_libraries(serial_interface ${catkin_LIBRARIES} ${SER_LIB})
+#add_library(serial_interface src/serial_interface.cpp)
+#target_link_libraries(serial_interface ${catkin_LIBRARIES} ${SER_LIB})
 
 
 
@@ -85,9 +85,9 @@ target_link_libraries(odom_broadcaster_node ${catkin_LIBRARIES})
 
 ## Declare a cpp executable
 
-add_executable(motor_node src/motor_node.cpp)
-target_link_libraries(motor_node serial_interface ${catkin_LIBRARIES} ${SER_LIB})
-add_dependencies(motor_node scr_proto_generate_messages_cpp)
+#add_executable(motor_node src/motor_node.cpp)
+#target_link_libraries(motor_node serial_interface ${catkin_LIBRARIES} ${SER_LIB})
+#add_dependencies(motor_node scr_proto_generate_messages_cpp)
 
 add_executable(speed_controller_node src/speed_controller_node.cpp)
 target_link_libraries(speed_controller_node ${catkin_LIBRARIES})
@@ -96,6 +96,9 @@ add_dependencies(speed_controller_node scr_proto_generate_messages_cpp)
 add_executable(base_controller_node src/base_controller_node.cpp)
 target_link_libraries(base_controller_node ${catkin_LIBRARIES})
 add_dependencies(base_controller_node scr_proto_generate_messages_cpp)
+
+add_executable(nav_goals_node src/nav_goals_node.cpp)
+target_link_libraries(nav_goals_node ${catkin_LIBRARIES})
 
 
 ## Add cmake target dependencies of the executable/library
