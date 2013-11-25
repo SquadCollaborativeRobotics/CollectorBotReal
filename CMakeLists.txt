@@ -97,8 +97,8 @@ add_executable(base_controller_node src/base_controller_node.cpp)
 target_link_libraries(base_controller_node ${catkin_LIBRARIES})
 add_dependencies(base_controller_node scr_proto_generate_messages_cpp)
 
-add_executable(nav_goals_node src/nav_goals_node.cpp)
-target_link_libraries(nav_goals_node ${catkin_LIBRARIES})
+##add_executable(nav_goals_node src/nav_goals_node.cpp)
+#target_link_libraries(nav_goals_node ${catkin_LIBRARIES})
 
 
 ## Add cmake target dependencies of the executable/library
