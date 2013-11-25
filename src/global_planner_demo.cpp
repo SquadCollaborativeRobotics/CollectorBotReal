@@ -11,7 +11,7 @@ void tagCallback(const geometry_msgs::PoseStamped::ConstPtr& msg){
   ROS_INFO("April Tag Callback!");
 
   ROS_INFO("Header : %s", msg->header.frame_id.c_str());
-  if (msg->header.frame_id.c_str()[0] == '2') {
+  if (msg->header.frame_id.c_str()[0] == '6') {
     ROS_INFO("Header Match!");
     // Publish pose to move_base_simple/goal
     geometry_msgs::PoseStamped goal_pose;
