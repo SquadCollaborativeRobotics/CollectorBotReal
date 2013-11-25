@@ -70,12 +70,14 @@ int main(int argc, char** argv){
   
   // Publishers
   ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("odom", 1);
-
+  ros::Publisher tags_pub = n.advertise<geometry_msgs::PoseStamped>("/apriltags", 1000);
+  
   // Transform Broadcasters
   tf::TransformBroadcaster camera_link_broadcaster;
 
   // Initialize variables for loop
   ros::Rate r(30.0);
+
 
   while(n.ok()){
     // Broadcast the base link to kinect
@@ -86,6 +88,26 @@ int main(int argc, char** argv){
         ros::Time::now(),"base_link", "camera_link"));
 
     AprilTagOverride(listener);
+
+    tf::StampedTransform transform;
+    
+    geometry_msgs::PoseStamped ps;
+    tf::Quaternion quat;
+    //cvWaitKey(10);
+
+    listener.lookupTransform("/map", "/april_tag[6]",
+                             ros::Time(0), transform);
+    quat = transform.getRotation();
+  
+    ps.header.frame_id = "6";
+    ps.pose.position.x = transform.getOrigin().x();
+    ps.pose.position.y = transform.getOrigin().y();
+    geometry_msgs::Quaternion q;
+    q.x=0;
+    q.y=0;
+    q.z=quat.z();
+    ps.pose.orientation = q;
+    tags_pub.publish(ps);
 
     // Update callbacks after the fact, for next loop iteration.
     ros::spinOnce();
