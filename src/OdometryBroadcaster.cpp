@@ -2,6 +2,7 @@
 
 #include <ros/ros.h>
 #include <tf/transform_broadcaster.h>
+#include <tf/transform_listener.h>
 #include <nav_msgs/Odometry.h>
 #include "std_msgs/Float32.h"
 
@@ -50,6 +51,63 @@ void rw_speed_callback(const std_msgs::Float32::ConstPtr& msg)
 }
 
 
+bool AprilTagOverride(tf::TransformListener &listener)
+{
+  tf::StampedTransform transform;
+
+  try{
+    if (listener.canTransform ("/april_tag[3]", "/landmark_3", ros::Time(0)))
+    {
+      listener.lookupTransform("/april_tag[3]", "/landmark_3",
+                               ros::Time(0), transform);
+      tf::Quaternion quat = transform.getRotation();
+      ROS_INFO("Found transform for tag 3:\ndx = %lf, dy = %lf, dz = %lf",
+        transform.getOrigin().x(), transform.getOrigin().y(), transform.getOrigin().z());
+      //x -= transform.getOrigin().x();
+      //y -= transform.getOrigin().y();
+      //th -= quat.z();
+    }
+  }
+  catch (tf::TransformException ex){
+    ROS_INFO("could not transform from /april_tag[3] to /landmark_3");
+    return false;
+  }
+
+  try{
+    if (listener.canTransform ("/april_tag[5]", "/landmark_5", ros::Time(0)))
+    {
+      listener.lookupTransform("/april_tag[5]", "/landmark_5", 
+                               ros::Time(0), transform);
+      tf::Quaternion quat = transform.getRotation();
+      ROS_INFO("Found transform for tag 5:\ndx = %lf, dy = %lf, dz = %lf",
+        transform.getOrigin().x(), transform.getOrigin().y(), transform.getOrigin().z());
+      //x -= transform.getOrigin().x();
+      //y -= transform.getOrigin().y();
+      //th -= quat.z();
+    }
+  }
+  catch (tf::TransformException ex){
+    ROS_INFO("could not transform from /april_tag[5] to /landmark_5");
+    return false;
+  }
+/*
+  try{
+    if (listener.canTransform ("/landmark_5", "/landmark_3", ros::Time(0)))
+    {
+      listener.lookupTransform("/landmark_3", "/landmark_5",
+                               ros::Time(0), transform);
+      tf::Quaternion quat = transform.getRotation();
+      ROS_INFO("Found transform between landmarks:\ndx = %lf, dy = %lf, dz = %lf",
+        transform.getOrigin().x(), transform.getOrigin().y(), transform.getOrigin().z());
+    }
+  }
+  catch (tf::TransformException ex){
+    ROS_INFO("could not transform from /april_tag[5] to /landmark_5");
+    return false;
+  }
+  */
+}
+
 int main(int argc, char** argv){
   ros::init(argc, argv, "odometry_publisher");
 
@@ -59,6 +117,8 @@ int main(int argc, char** argv){
   ros::Subscriber lw_sub = n.subscribe("lw_speed", 10, lw_speed_callback);
   ros::Subscriber rw_sub = n.subscribe("rw_speed", 10, rw_speed_callback);
 
+  tf::TransformListener listener(n);
+  
   // Publishers
   ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("odom", 1);
 
@@ -84,6 +144,8 @@ int main(int argc, char** argv){
         ros::Time::now(),"base_link", "camera_link"));
 
 
+    AprilTagOverride(listener);
+
     // Only update values if the last updated wheel speeds were within the last second, otherwise zero them out
     if ((current_time - last_lw_time < ros::Duration(1.0)) && (current_time - last_rw_time < ros::Duration(1.0)))
 
@@ -104,7 +166,7 @@ int main(int argc, char** argv){
     }
     else
     {
-      ROS_ERROR("Have not received a wheel speed update in: %lf", (current_time-last_lw_time).toSec());
+      //ROS_ERROR("Have not received a wheel speed update in: %lf", (current_time-last_lw_time).toSec());
       vx = vy = vth = 0;
     }
 
