@@ -1,0 +1,14 @@
+#the obstacle range is the maximum distance that kinect hits turn into actual obstacles
+obstacle_range: 3.0
+#raytrace range is the maximum distance that if no obstacle is seen, it is "clear"
+raytrace_range: 3.5
+
+#TODO: find real numbers
+# [x0,y0] in this order=> front right, rear right, rear left, front left
+footprint: [[0.0619125, 0.1397], [-0.5476875, 0.1397], [-0.5476875, -0.1397], [0.0619125, -0.1397]]
+#robot_radius: ir_of_robot
+inflation_radius: 0.5
+
+observation_sources: laser_scan_sensor
+
+laser_scan_sensor: {sensor_frame: /camera_depth_frame, data_type: LaserScan, topic: /scan, marking: true, clearing: true}

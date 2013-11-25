@@ -1,0 +1,18 @@
+<launch>
+  <!-- local machine already has a definition by default.
+       This tag overrides the default definition with
+       specific ROS_ROOT and ROS_PACKAGE_PATH values -->
+  <machine name="local_alt" address="localhost" default="true"/>
+
+  <!-- Run the arduino code with serial comms
+  <include file="$(find scr_proto)/launch/base_controller_p3.launch" />
+  -->
+  
+  <!-- odometry broadcast node 
+  <node name="collector_odom_broadcaster_node" pkg="scr_proto" type="odom_broadcaster_node">
+  </node>
+  -->
+ 
+  <include file="$(find freenect_launch)/launch/freenect.launch" />
+ 
+</launch>

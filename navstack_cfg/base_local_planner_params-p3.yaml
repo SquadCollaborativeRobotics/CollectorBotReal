@@ -1,0 +1,14 @@
+#for pioneer p3-dx
+#Specs obtained from: http://www.mobilerobots.com/Libraries/Downloads/Pioneer3DX-P3DX-RevA.sflb.ashx
+
+TrajectoryPlannerROS:
+  min_vel_x: 0.1
+  max_vel_x: 1.20
+  max_rotational_vel: 5.23598776 #300 degrees/sec
+  min_in_place_rotational_vel: 0.4 #The minimum rotational velocity allowed for the base while performing in-place rotations in radians/sec
+
+  acc_lim_th: 3.2
+  acc_lim_x: 2.5
+  acc_lim_y: 2.5
+
+  holonomic_robot: false
