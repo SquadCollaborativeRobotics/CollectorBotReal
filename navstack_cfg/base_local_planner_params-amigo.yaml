@@ -2,10 +2,10 @@
 #Specs obtained from: http://www.mobilerobots.com/Libraries/Downloads/Pioneer3DX-P3DX-RevA.sflb.ashx
 
 TrajectoryPlannerROS:
-  min_vel_x: 0.1
-  max_vel_x: 0.3
-  max_rotational_vel: 1.74 #100 degrees/sec
-  min_in_place_rotational_vel: 0.4 #The minimum rotational velocity allowed for the base while performing in-place rotations in radians/sec
+  min_vel_x: 0.03
+  max_vel_x: 0.1
+  max_rotational_vel: 0.74 # rad/sec
+  min_in_place_rotational_vel: 0.2 #The minimum rotational velocity allowed for the base while performing in-place rotations in radians/sec
 
   acc_lim_th: 3.2
   acc_lim_x: 2.5

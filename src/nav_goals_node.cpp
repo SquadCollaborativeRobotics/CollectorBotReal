@@ -1,29 +1,29 @@
 #include <ros/ros.h>
 #include <move_base_msgs/MoveBaseAction.h>
 #include <actionlib/client/simple_action_client.h>
-#include <geometry_msgs/Pose2D.h>
+#include <geometry_msgs/PoseStamped.h>
 
 // Convenience Typedef
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
-double goal_x = 0.0;
-double goal_y = 0.0;
-double goal_theta = 0.0;
+geometry_msgs::PoseStamped goal_pose;
 bool new_goal = false;
 
+
 // Callback for new goals
-void goalCallback(const geometry_msgs::Pose2D::ConstPtr& msg){
+// TODO : REMAP THE FKING PoseStamped to Move! - Sam
+void goalCallback(const geometry_msgs::PoseStamped::ConstPtr& msg){
   ROS_INFO("Goal Callback!");
 
   // Extract Values from message
-  goal_x = msg->x;
-  goal_y = msg->y;
-  goal_theta = msg->theta;
+  goal_pose = *msg;
 
   // Inform stack there's a new goal
   new_goal = true;
 
 }
+
+
 
 int main(int argc, char** argv){
   
@@ -36,7 +36,7 @@ int main(int argc, char** argv){
 
   ROS_INFO("Starting subscription.");
   // Subscribe to goal
-  ros::Subscriber goal_sub = n.subscribe("blah", 1000, goalCallback);
+  ros::Subscriber goal_sub = n.subscribe("move_base_simple/goal", 1000, goalCallback);
 
   // Tell the action client that we want to spin a thread by default
   MoveBaseClient ac("move_base", true);
@@ -52,13 +52,7 @@ int main(int argc, char** argv){
       move_base_msgs::MoveBaseGoal goal;
 
       // Construct goal message
-      goal.target_pose.header.frame_id = "map";
-      goal.target_pose.header.stamp = ros::Time::now();
-
-      goal.target_pose.pose.position.x = goal_x;
-      goal.target_pose.pose.position.y = goal_y;
-      goal.target_pose.pose.orientation.z = goal_theta;
-      goal.target_pose.pose.orientation.w = 1.0;
+      goal.target_pose = goal_pose;
 
       ROS_INFO("Sending goal");
       ac.sendGoal(goal);
