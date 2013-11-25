@@ -5,7 +5,6 @@
   <machine name="local_alt" address="localhost" default="true"/>
 
   <!-- Run the arduino code with serial comms -->
-  <include file="$(find scr_proto)/launch/base_controller_arduino.launch" />
 
   <!-- odometry broadcast node -->
   <node name="collector_odom_broadcaster_node" pkg="scr_proto" type="odom_broadcaster_node">

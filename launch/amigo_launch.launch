@@ -8,11 +8,16 @@
   <include file="$(find scr_proto)/launch/base_controller_p3.launch" />
   -->
   
-  <!-- odometry broadcast node 
-  <node name="collector_odom_broadcaster_node" pkg="scr_proto" type="odom_broadcaster_node">
-  </node>
-  -->
+  <!-- odometry broadcast node  -->
+  <node name="collector_odom_broadcaster_node" pkg="scr_proto" type="odom_broadcaster_node"></node>
+ 
  
   <include file="$(find freenect_launch)/launch/freenect.launch" />
+
+
+  <node name="amigobot_node" pkg="rosaria" type="RosAria">
+    <param name="_port" value="/dev/ttyUSB0"/>
+    <remap from="amigobot_node/cmd_vel" to="cmd_vel"/>
+  </node>
  
 </launch>
