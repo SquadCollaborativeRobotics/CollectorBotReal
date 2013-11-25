@@ -13,6 +13,7 @@ bool new_goal = false;
 
 // Callback for new goals
 void goalCallback(const geometry_msgs::Pose2D::ConstPtr& msg){
+  ROS_INFO("Goal Callback!");
 
   // Extract Values from message
   goal_x = msg->x;
@@ -32,6 +33,10 @@ int main(int argc, char** argv){
 
   // Create Rate Object for sleeping
   ros::Rate r(10);
+
+  ROS_INFO("Starting subscription.");
+  // Subscribe to goal
+  ros::Subscriber goal_sub = n.subscribe("blah", 1000, goalCallback);
 
   // Tell the action client that we want to spin a thread by default
   MoveBaseClient ac("move_base", true);
@@ -66,6 +71,10 @@ int main(int argc, char** argv){
         ROS_INFO("The base failed to move forward 1 meter for some reason");
     }
 
+    // Update callbacks after the fact, for next loop iteration.
+    ros::spinOnce();
+
     r.sleep();
+
   }
 }
