@@ -22,7 +22,6 @@
     <param name="self_diagnose" value="false"/>
   </node>
   -->
-  
    
   <include file="$(find freenect_launch)/launch/freenect.launch" />
  
