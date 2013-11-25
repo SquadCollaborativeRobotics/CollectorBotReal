@@ -3,8 +3,7 @@
   <master auto="start"/>
 
   <!-- Run the map server -->
-  <node name="map_server" pkg="map_server" type="map_server" args="$(find scr_proto)/navstack_cfg/testing127.yaml"/>
- 
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find scr_proto)/maps/testing127.yaml"/>
 
   <!-- - Run AMCL  -->
   <node pkg="amcl" type="amcl" name="amcl" output="screen">
@@ -14,8 +13,8 @@
     <param name="transform_tolerance" value="0.2" />
     <param name="gui_publish_rate" value="10.0"/>
     <param name="laser_max_beams" value="60"/>
-    <param name="min_particles" value="1000"/>
-    <param name="max_particles" value="10000"/>
+    <param name="min_particles" value="300"/>
+    <param name="max_particles" value="500"/>
     <param name="kld_err" value="0.05"/>
     <param name="kld_z" value="0.99"/>
     <param name="odom_alpha1" value="0.2"/>
@@ -42,23 +41,15 @@
     <param name="recovery_alpha_fast" value="0.0"/>
   </node>
 
-  <!-- <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
-    <rosparam file="$(find scr_proto)/navstack_cfg/costmap_common_params.yaml" command="load" ns="global_costmap" />
-    <rosparam file="$(find scr_proto)/navstack_cfg/costmap_common_params.yaml" command="load" ns="local_costmap" />
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+    <rosparam file="$(find scr_proto)/navstack_cfg/costmap_common_params-amigo.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find scr_proto)/navstack_cfg/costmap_common_params-amigo.yaml" command="load" ns="local_costmap" />
     <rosparam file="$(find scr_proto)/navstack_cfg/local_costmap_params.yaml" command="load" />
     <rosparam file="$(find scr_proto)/navstack_cfg/global_costmap_params.yaml" command="load" />
-    <rosparam file="$(find scr_proto)/navstack_cfg/base_local_planner_params.yaml" command="load" />
-  </node> -->
+    <rosparam file="$(find scr_proto)/navstack_cfg/base_local_planner_params-amigo.yaml" command="load" />
+  </node>
 
-  
-  
-  
   <node name="kinect_laser" type="depthimage_to_laserscan" pkg="depthimage_to_laserscan" args="image:=/camera/depth/image_raw">
-    <param name="scan_height" value="1.0" /> <!-- height in pixels of laserscan, scan line is center of image -->
-    <param name="scan_time" value=".035" /> <!-- 1/frame rate, need to find this -->
-    <param name="range_min" value=".45" /> <!-- range in meters of minimum scan distance -->
-    <param name="range_max" value="10" /> <!-- range in meters of maximum scan distance -->
-    <param name="output_frame_id" value="camera_depth_frame" /> <!-- Frame id of scans --> 
   </node>
 
 </launch>
