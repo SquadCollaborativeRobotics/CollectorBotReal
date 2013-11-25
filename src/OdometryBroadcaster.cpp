@@ -94,20 +94,22 @@ int main(int argc, char** argv){
     geometry_msgs::PoseStamped ps;
     tf::Quaternion quat;
     //cvWaitKey(10);
-
-    listener.lookupTransform("/map", "/april_tag[6]",
-                             ros::Time(0), transform);
-    quat = transform.getRotation();
-  
-    ps.header.frame_id = "6";
-    ps.pose.position.x = transform.getOrigin().x();
-    ps.pose.position.y = transform.getOrigin().y();
-    geometry_msgs::Quaternion q;
-    q.x=0;
-    q.y=0;
-    q.z=quat.z();
-    ps.pose.orientation = q;
-    tags_pub.publish(ps);
+    if (listener.canTransform ("/map", "/april_tag[6]", ros::Time(0)))
+    {
+      listener.lookupTransform("/map", "/april_tag[6]",
+                               ros::Time(0), transform);
+      quat = transform.getRotation();
+    
+      ps.header.frame_id = "6";
+      ps.pose.position.x = transform.getOrigin().x();
+      ps.pose.position.y = transform.getOrigin().y();
+      geometry_msgs::Quaternion q;
+      q.x=0;
+      q.y=0;
+      q.z=quat.z();
+      ps.pose.orientation = q;
+      tags_pub.publish(ps);
+    }
 
     // Update callbacks after the fact, for next loop iteration.
     ros::spinOnce();
