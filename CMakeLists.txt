@@ -82,6 +82,8 @@ target_link_libraries(odom_test ${catkin_LIBRARIES})
 add_executable(odom_broadcaster_node src/OdometryBroadcaster.cpp)
 target_link_libraries(odom_broadcaster_node ${catkin_LIBRARIES})
 
+add_executable(global_planner src/global_planner_demo.cpp)
+target_link_libraries(global_planner ${catkin_LIBRARIES})
 
 ## Declare a cpp executable
 

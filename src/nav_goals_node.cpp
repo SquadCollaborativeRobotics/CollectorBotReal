@@ -53,13 +53,6 @@ int main(int argc, char** argv){
 
       // Construct goal message
       goal.target_pose = goal_pose;
-      // goal.target_pose.header.frame_id = "base_link";
-      // goal.target_pose.header.stamp = ros::Time::now();
-
-      // goal.target_pose.pose.position.x = goal_x;
-      // goal.target_pose.pose.position.y = goal_y;
-      // goal.target_pose.pose.orientation.z = goal_theta;
-      // goal.target_pose.pose.orientation.w = 1.0;
 
       ROS_INFO("Sending goal");
       ac.sendGoal(goal);
