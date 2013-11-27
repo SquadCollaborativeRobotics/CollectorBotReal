@@ -17,10 +17,11 @@ void tagCallback(const geometry_msgs::PoseStamped::ConstPtr& msg){
     geometry_msgs::PoseStamped goal_pose;
 
     // Set goal position in front of april tag
-    goal_pose.pose.position.x = msg->pose.position.x - 1.0*cos(msg->pose.orientation.z);
-    goal_pose.pose.position.y = msg->pose.position.y - 1.0*sin(msg->pose.orientation.z);
+    goal_pose.pose.position.x = msg->pose.position.x - 0.5*cos(msg->pose.orientation.z);
+    goal_pose.pose.position.y = msg->pose.position.y - 0.5*sin(msg->pose.orientation.z);
 
-    goal_pose.pose.orientation.z = msg->pose.orientation.z + 3.14159;
+    goal_pose.header.frame_id = "map";
+    goal_pose.pose.orientation.z = msg->pose.orientation.z;
     goal_pose.pose.orientation.w = 1.0;
 
     // Just use the /map x & y
