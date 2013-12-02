@@ -4,14 +4,8 @@
        specific ROS_ROOT and ROS_PACKAGE_PATH values -->
   <machine name="local_alt" address="localhost" default="true"/>
 
-  <!-- Run the arduino code with serial comms 
-  <include file="$(find scr_proto)/launch/base_controller_p3.launch" />
-  -->
-  
-  <!-- odometry broadcast node  -->
-  <node name="collector_odom_broadcaster_node" pkg="scr_proto" type="odom_broadcaster_node"></node>
- 
- 
+  <node name="april_tags_processor" pkg="scr_proto" type="april_tags_processor"></node>
+
   <include file="$(find freenect_launch)/launch/freenect.launch" />
 
   <include file="$(find scr_proto)/launch/static_transforms.launch" />
@@ -20,5 +14,5 @@
     <param name="_port" value="/dev/ttyUSB0"/>
     <remap from="amigobot_node/cmd_vel" to="cmd_vel"/>
   </node>
- 
+
 </launch>
