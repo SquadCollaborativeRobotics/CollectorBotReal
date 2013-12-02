@@ -35,7 +35,7 @@ bool AprilTagLocalize(tf::TransformListener &listener)
 {
   static ros::Time lastPoseUpdateTime = ros::Time::now();
 
-  if (ros::Time::now() - lastPoseUpdateTime > ros::Duration(5.1))
+  if (ros::Time::now() - lastPoseUpdateTime > ros::Duration(5))
   {
     for (int i = 0; i < landmark_frames.size(); i++)
     {
@@ -85,7 +85,7 @@ bool AprilTagLocalize(tf::TransformListener &listener)
             pose.position.z = 0;
             pose.orientation = msg_tf.rotation;
 
-            ROS_INFO("New Robot Position:\ndx = %lf, dy = %lf, dz = %lf",
+            ROS_INFO("New Robot Position:\nx = %lf, y = %lf, z = %lf",
             pose.position.x, pose.position.y, pose.position.z);
 
             geometry_msgs::PoseWithCovarianceStamped newRobotPose;
