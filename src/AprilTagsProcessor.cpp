@@ -35,7 +35,7 @@ bool AprilTagLocalize(tf::TransformListener &listener)
 {
   static ros::Time lastPoseUpdateTime = ros::Time::now();
 
-  if (ros::Time::now() - lastPoseUpdateTime > ros::Duration(5))
+  if (ros::Time::now() - lastPoseUpdateTime > ros::Duration(0))
   {
     for (int i = 0; i < landmark_frames.size(); i++)
     {
@@ -96,9 +96,12 @@ bool AprilTagLocalize(tf::TransformListener &listener)
 
             // create the covariance array (the values are based on what rviz sends)
             // TODO: change based on confidence (distance to tag?)
-            boost::array<double, 36> covariance = {0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25,
+            // boost::array<double, 36> covariance = {0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25,
+            // 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+            // 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.06853891945200942};
+            boost::array<double, 36> covariance = {0.05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.05,
             0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.06853891945200942};
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.025};
 
             poseWithCovariance.covariance = covariance;
             newRobotPose.pose = poseWithCovariance;
