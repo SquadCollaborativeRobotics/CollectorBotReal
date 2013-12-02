@@ -35,7 +35,7 @@ bool AprilTagLocalize(tf::TransformListener &listener)
 {
   static ros::Time lastPoseUpdateTime = ros::Time::now();
 
-  if (ros::Time::now() - lastPoseUpdateTime > ros::Duration(0))
+  if (ros::Time::now() - lastPoseUpdateTime > ros::Duration(3))
   {
     for (int i = 0; i < landmark_frames.size(); i++)
     {
