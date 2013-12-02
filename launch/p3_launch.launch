@@ -8,11 +8,12 @@
   <include file="$(find scr_proto)/launch/base_controller_p3.launch" />
   -->
   
-  <!-- odometry broadcast node 
-  <node name="collector_odom_broadcaster_node" pkg="scr_proto" type="odom_broadcaster_node">
-  </node>
+  <!-- odometry broadcast node
+  <node name="collector_odom_broadcaster_node" pkg="scr_proto" type="odom_broadcaster_node"></node>
   -->
- 
+  
   <include file="$(find freenect_launch)/launch/freenect.launch" />
+
+  <include file="$(find scr_proto)/launch/static_transforms.launch" />
  
 </launch>

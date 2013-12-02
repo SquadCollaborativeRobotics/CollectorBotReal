@@ -10,7 +10,7 @@ find_package(catkin REQUIRED COMPONENTS roscpp
                   std_msgs
                   genmsg
                   message_generation
-                  apriltags)
+                  april_tags)
 find_package(eigen REQUIRED)
 
 ## System dependencies are found with CMake's conventions
@@ -56,8 +56,8 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES apriltags_lib
-  CATKIN_DEPENDS roscpp rospy rosserial_arduino std_msgs message_runtime
+  LIBRARIES april_tags_lib
+  CATKIN_DEPENDS roscpp rospy rosserial_arduino april_tags std_msgs message_runtime
   DEPENDS eigen
 )
 

@@ -14,6 +14,7 @@
  
   <include file="$(find freenect_launch)/launch/freenect.launch" />
 
+  <include file="$(find scr_proto)/launch/static_transforms.launch" />
 
   <node name="amigobot_node" pkg="rosaria" type="RosAria">
     <param name="_port" value="/dev/ttyUSB0"/>
