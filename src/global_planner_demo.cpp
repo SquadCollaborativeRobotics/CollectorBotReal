@@ -90,7 +90,7 @@ void getGoalPoseFromTrashcan(const geometry_msgs::PoseStamped::ConstPtr& msg,
 }
 
 // Callback for new april tags
-/*void trashcanTagSearcherCallback(const geometry_msgs::PoseStamped::ConstPtr& msg) {
+void trashcanTagSearcherCallback(const geometry_msgs::PoseStamped::ConstPtr& msg) {
   ROS_INFO("April Tag Callback!");
 
   ROS_INFO("Header : %s", msg->header.frame_id.c_str());
@@ -102,59 +102,81 @@ void getGoalPoseFromTrashcan(const geometry_msgs::PoseStamped::ConstPtr& msg,
 
     move_base_msgs::MoveBaseGoal goal;
     
-    // Set goal position in front of april tag
-    getGoalPoseFromTrashcan(msg, goal);
+    if (currState == APPROACH_TRASH) {
+      // Set goal position to in front of april tag
+      getGoalPoseFromTrashcan(msg, goal);
 
-    action_client_ptr->sendGoal(goal);
-
-    // Unsubscribe so we only use goal once
-    sub.shutdown();
+      // http://mirror.umd.edu/roswiki/doc/diamondback/api/actionlib/html/classactionlib_1_1simple__action__client_1_1SimpleActionClient.html#a6bdebdd9f43a470ecd361d2c8b743188
+      // If a previous goal is already active when this is called. 
+      // We simply forget about that goal and start tracking the new goal. 
+      // No cancel requests are made.
+      action_client_ptr->sendGoal(goal);
+    }
   }
-}*/
+}
 
 void transition(State state, ros::NodeHandle &n) {
   if (currState != state) {
     currState = state;
     ROS_INFO("-- STATE TRANSITION %d --", currState);
+
+    int chosen_search_pose = -1;
     switch(currState) {
       case SAFE:
       sub.shutdown();
       break;
 
       case SEARCH_A:
-      {
-        // Subscribe to trashcan searcher
-        // sub = n.subscribe("apriltags", 1000, trashcanTagSearcherCallback);
-        move_base_msgs::MoveBaseGoal goal;
-        setGoalPose(search_poses[0], goal);
-        goal.target_pose.header.frame_id = "map";
-        goal.target_pose.header.stamp = ros::Time::now();
-        action_client_ptr->sendGoal(goal);
-        ROS_INFO("SENDING POSE SEARCH_A to /move_base/goal");
-      }
+      chosen_search_pose = 0;
+      ROS_INFO("SENDING POSE SEARCH_A to /move_base/goal");
       break;
 
       case SEARCH_B:
-      {
-        // Subscribe to trashcan searcher
-        // sub = n.subscribe("apriltags", 1000, trashcanTagSearcherCallback);
-        move_base_msgs::MoveBaseGoal goal;
-        setGoalPose(search_poses[1], goal);
-        goal.target_pose.header.frame_id = "map";
-        goal.target_pose.header.stamp = ros::Time::now();
-        action_client_ptr->sendGoal(goal);
-        ROS_INFO("SENDING POSE SEARCH_B to /move_base/goal");
-      }
+      chosen_search_pose = 1;
+      ROS_INFO("SENDING POSE SEARCH_B to /move_base/goal");
+      break;
+
+      case SEARCH_C:
+      chosen_search_pose = 2;
+      ROS_INFO("SENDING POSE SEARCH_C to /move_base/goal");
+      break;
+
+      case SEARCH_D:
+      chosen_search_pose = 3;
+      ROS_INFO("SENDING POSE SEARCH_D to /move_base/goal");
+      break;
+
+      case SEARCH_E:
+      chosen_search_pose = 4;
+      ROS_INFO("SENDING POSE SEARCH_E to /move_base/goal");
       break;
 
       case APPROACH_TRASH:
       break;
 
       case DUMP_TRASH:
+      sub.shutdown();
       break;
 
       case END:
+      sub.shutdown();
       break;
+    }
+
+    // If searching
+    if (chosen_search_pose >= 0) {
+      // Subscribe to trashcan searcher
+      sub = n.subscribe("apriltags", 1000, trashcanTagSearcherCallback);
+      
+      // Set goal to search pose
+      move_base_msgs::MoveBaseGoal goal;
+      setGoalPose(search_poses[chosen_search_pose], goal);
+      goal.target_pose.header.frame_id = "map";
+      goal.target_pose.header.stamp = ros::Time::now();
+      
+      // Send goal to action client
+      action_client_ptr->sendGoal(goal);
+      ROS_INFO("GOAL SENT");
     }
   }
 }
@@ -178,7 +200,7 @@ int main(int argc, char** argv){
   action_client_ptr.reset( new MoveBaseClient("move_base", false) );
 
   // Create Rate Object for sleeping
-  ros::Rate r(10);
+  ros::Rate r(1);
 
   // Wait for the action server to come up
   // while(ros::ok() && !action_client_ptr->waitForServer(ros::Duration(1.0))){
@@ -192,7 +214,7 @@ int main(int argc, char** argv){
     if (command_value == 0) {
       transition(SAFE, n);
     }
-    // State machine checks
+    // State machine command override from safe to chosen state
     switch(currState) {
       case SAFE:
       switch (command_value) {
@@ -212,9 +234,12 @@ int main(int argc, char** argv){
         transition(SEARCH_E, n);
         break;
         case 6:
-        transition(DUMP_TRASH, n);
+        transition(APPROACH_TRASH, n);
         break;
         case 7:
+        transition(DUMP_TRASH, n);
+        break;
+        case 8:
         transition(END, n);
         break;
       }
@@ -261,9 +286,15 @@ int main(int argc, char** argv){
       break;
 
       case APPROACH_TRASH:
+      if (action_client_ptr->getState() == actionlib::SimpleClientGoalState::SUCCEEDED ||
+          command_value == 7) {
+        transition(DUMP_TRASH, n);
+      }
       break;
 
       case DUMP_TRASH:
+      // Placeholder transition for now
+      transition(END, n);
       break;
 
       case END:
