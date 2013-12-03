@@ -2,54 +2,273 @@
 #include <move_base_msgs/MoveBaseAction.h>
 #include <actionlib/client/simple_action_client.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <boost/thread/mutex.hpp>
+#include "std_msgs/Int32.h"
 
-ros::Publisher pub;
+// The global planner uses the actionlib to do the following:
+// Start in safe mode
+//
+// In safe state
+//  cancel all goals and no april tag callbacks
+//  if start command:
+//   Transition to search state
+//  if goto state command:
+//   Transition to given state
+// 
+// In search state
+//  travel to poses A,B,etc... on known map
+//  If a trashcan is found at any time:
+//   Transition to approach_trash state
+//  else if hit final search state:
+//   Transition to end state
+//  
+// In approach_trash state
+//  travel to infront of trashcan
+//  if reach trash pose:
+//   transition to dump trash state
+//
+// In dump trash state
+//  travel to dump trash position
+//  if reach dump trash position:
+//   transition to end state
+//
+// In end state
+//  travel to final pose
+//  if reaach final pose:
+//   transition to safe state
+
+
+// Convenience Typedef
+typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
+
+boost::shared_ptr<MoveBaseClient> action_client_ptr;
+
+// April tag subscriber
 ros::Subscriber sub;
 
+// State Machine for Fall Demo #2
+enum State { SAFE, SEARCH_A, SEARCH_B, SEARCH_C, SEARCH_D, SEARCH_E, APPROACH_TRASH, DUMP_TRASH, END};
+State currState = SAFE;
+
+// Search poses
+struct search_pose
+{
+  // x, y, rot
+  double x, y, rz, rw;
+};
+search_pose search_poses[] = { {0.5, -1, 0, 1},
+                               {2, 1, 1, 0},
+                               {-1.8, .9, -.73, .68},
+                               {-2, -1, 0, 1},
+                               {0, -1, 0.67, 0.72},
+                               {0, 0, 0, 1}};
+
+
+// Sets given goal to given x,y and rotation quat rz,rw
+void setGoalPoseRaw(double x, double y, double rz, double rw, 
+                 move_base_msgs::MoveBaseGoal &goal) {
+  goal.target_pose.pose.position.x = x;
+  goal.target_pose.pose.position.y = y;
+  goal.target_pose.pose.orientation.z = rz;
+  goal.target_pose.pose.orientation.w = rw;  
+}
+void setGoalPose(const search_pose &s, 
+                 move_base_msgs::MoveBaseGoal &goal) {
+  setGoalPoseRaw(s.x, s.y, s.rz, s.rw, goal);
+}
+
+// Given a trashcan as a PoseStamped messge, returns the goal pose in front of it
+void getGoalPoseFromTrashcan(const geometry_msgs::PoseStamped::ConstPtr& msg,
+                             move_base_msgs::MoveBaseGoal &goal) {
+  setGoalPoseRaw(msg->pose.position.x - 0.5*cos(msg->pose.orientation.z),
+                 msg->pose.position.y - 0.5*sin(msg->pose.orientation.z),
+                 msg->pose.orientation.z,
+                 msg->pose.orientation.w,
+                 goal);
+  goal.target_pose.header.frame_id = "map";
+  goal.target_pose.header.stamp = ros::Time::now();
+}
+
 // Callback for new april tags
-void tagCallback(const geometry_msgs::PoseStamped::ConstPtr& msg){
+/*void trashcanTagSearcherCallback(const geometry_msgs::PoseStamped::ConstPtr& msg) {
   ROS_INFO("April Tag Callback!");
 
   ROS_INFO("Header : %s", msg->header.frame_id.c_str());
+
+  // If april tag is id 6 (trashcan)
   if (msg->header.frame_id.c_str()[0] == '6') {
     ROS_INFO("Header Match!");
-    // Publish pose to move_base_simple/goal
     geometry_msgs::PoseStamped goal_pose;
 
+    move_base_msgs::MoveBaseGoal goal;
+    
     // Set goal position in front of april tag
-    goal_pose.pose.position.x = msg->pose.position.x - 0.5*cos(msg->pose.orientation.z);
-    goal_pose.pose.position.y = msg->pose.position.y - 0.5*sin(msg->pose.orientation.z);
+    getGoalPoseFromTrashcan(msg, goal);
 
-    goal_pose.header.frame_id = "map";
-    goal_pose.pose.orientation.z = msg->pose.orientation.z;
-    goal_pose.pose.orientation.w = 1.0;
-
-    // Just use the /map x & y
-    pub.publish(goal_pose);
+    action_client_ptr->sendGoal(goal);
 
     // Unsubscribe so we only use goal once
     sub.shutdown();
   }
+}*/
+
+void transition(State state, ros::NodeHandle &n) {
+  if (currState != state) {
+    currState = state;
+    ROS_INFO("-- STATE TRANSITION %d --", currState);
+    switch(currState) {
+      case SAFE:
+      sub.shutdown();
+      break;
+
+      case SEARCH_A:
+      {
+        // Subscribe to trashcan searcher
+        // sub = n.subscribe("apriltags", 1000, trashcanTagSearcherCallback);
+        move_base_msgs::MoveBaseGoal goal;
+        setGoalPose(search_poses[0], goal);
+        goal.target_pose.header.frame_id = "map";
+        goal.target_pose.header.stamp = ros::Time::now();
+        action_client_ptr->sendGoal(goal);
+        ROS_INFO("SENDING POSE SEARCH_A to /move_base/goal");
+      }
+      break;
+
+      case SEARCH_B:
+      {
+        // Subscribe to trashcan searcher
+        // sub = n.subscribe("apriltags", 1000, trashcanTagSearcherCallback);
+        move_base_msgs::MoveBaseGoal goal;
+        setGoalPose(search_poses[1], goal);
+        goal.target_pose.header.frame_id = "map";
+        goal.target_pose.header.stamp = ros::Time::now();
+        action_client_ptr->sendGoal(goal);
+        ROS_INFO("SENDING POSE SEARCH_B to /move_base/goal");
+      }
+      break;
+
+      case APPROACH_TRASH:
+      break;
+
+      case DUMP_TRASH:
+      break;
+
+      case END:
+      break;
+    }
+  }
+}
+
+
+int command_value = 0;
+void commandCallback(const std_msgs::Int32::ConstPtr& msg) {
+  command_value = msg->data;
+  ROS_INFO("Received command %d", command_value);
 }
 
 int main(int argc, char** argv){
   
   // ROS Node Initialization
-  ros::init(argc, argv, "navigation_april_tags");
+  ros::init(argc, argv, "global_planner");
   ros::NodeHandle n;
 
+  // Subscribe to command node
+  ros::Subscriber cmd_sub = n.subscribe("cmd_state", 10, commandCallback);
+
+  action_client_ptr.reset( new MoveBaseClient("move_base", false) );
+
   // Create Rate Object for sleeping
-  ros::Rate r(1);
+  ros::Rate r(10);
 
-  ROS_INFO("Starting april tag subscription.");
+  // Wait for the action server to come up
+  // while(ros::ok() && !action_client_ptr->waitForServer(ros::Duration(1.0))){
+  //   ROS_INFO("Waiting for the move_base action server to come up");
+  // }
+
   
-  // Subscribe to goal
-  sub = n.subscribe("apriltags", 1000, tagCallback);
-
-  // Publisher to goal
-  pub = n.advertise<geometry_msgs::PoseStamped>("move_base_simple/goal", 1000);
+  ROS_INFO("Starting global planner.");
 
   while(ros::ok()){
+    if (command_value == 0) {
+      transition(SAFE, n);
+    }
+    // State machine checks
+    switch(currState) {
+      case SAFE:
+      switch (command_value) {
+        case 1:
+        transition(SEARCH_A, n);
+        break;
+        case 2:
+        transition(SEARCH_B, n);
+        break;
+        case 3:
+        transition(SEARCH_C, n);
+        break;
+        case 4:
+        transition(SEARCH_D, n);
+        break;
+        case 5:
+        transition(SEARCH_E, n);
+        break;
+        case 6:
+        transition(DUMP_TRASH, n);
+        break;
+        case 7:
+        transition(END, n);
+        break;
+      }
+      break;
+
+      case SEARCH_A:
+      ROS_INFO("Status : %s", action_client_ptr->getState().toString().c_str());
+      if (action_client_ptr->getState() == actionlib::SimpleClientGoalState::SUCCEEDED ||
+          command_value == 2) {
+        transition(SEARCH_B, n);
+      }
+      break;
+
+      case SEARCH_B:
+      ROS_INFO("Status : %s", action_client_ptr->getState().toString().c_str());
+      if (action_client_ptr->getState() == actionlib::SimpleClientGoalState::SUCCEEDED ||
+          command_value == 3) {
+        transition(SEARCH_C, n);
+      }
+      break;
+
+      case SEARCH_C:
+      ROS_INFO("Status : %s", action_client_ptr->getState().toString().c_str());
+      if (action_client_ptr->getState() == actionlib::SimpleClientGoalState::SUCCEEDED ||
+          command_value == 4) {
+        transition(SEARCH_D, n);
+      }
+      break;
+
+      case SEARCH_D:
+      ROS_INFO("Status : %s", action_client_ptr->getState().toString().c_str());
+      if (action_client_ptr->getState() == actionlib::SimpleClientGoalState::SUCCEEDED ||
+          command_value == 5) {
+        transition(SEARCH_E, n);
+      }
+      break;
+
+      case SEARCH_E:
+      ROS_INFO("Status : %s", action_client_ptr->getState().toString().c_str());
+      if (action_client_ptr->getState() == actionlib::SimpleClientGoalState::SUCCEEDED ||
+          command_value == 6) {
+        transition(END, n);
+      }
+      break;
+
+      case APPROACH_TRASH:
+      break;
+
+      case DUMP_TRASH:
+      break;
+
+      case END:
+      break;
+    }
     
     // Update callbacks after the fact, for next loop iteration.
     ros::spinOnce();
