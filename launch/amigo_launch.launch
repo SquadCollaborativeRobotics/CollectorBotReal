@@ -27,7 +27,7 @@
   </node>
 
   <!-- Global Planner for Demo on 12/4 -->
-  <node name"scr_global_planner" pkg="scr_proto" type="global_planner"></node>
+  <node name="scr_global_planner" pkg="scr_proto" type="global_planner"></node>
 
   <!-- Rviz for Viewing -->
   <node name="Rviz" pkg="rviz" type="rviz"></node>
