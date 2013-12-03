@@ -203,9 +203,9 @@ int main(int argc, char** argv){
   ros::Rate r(1);
 
   // Wait for the action server to come up
-  // while(ros::ok() && !action_client_ptr->waitForServer(ros::Duration(1.0))){
-  //   ROS_INFO("Waiting for the move_base action server to come up");
-  // }
+  while(ros::ok() && !action_client_ptr->waitForServer(ros::Duration(1.0))){
+    ROS_INFO("Waiting for the move_base action server to come up");
+  }
 
   
   ROS_INFO("Starting global planner.");
