@@ -12,6 +12,12 @@
 std::vector<std::string> landmark_frames;
 std::vector<std::string> april_frames;
 
+// Hard Coded Hack, probably need a data structure to hold
+ros::Time lastPoseUpdateTime = NULL;
+ros::Time first_seen_tag = NULL;
+ros::Duration localization_delay(30.0);
+ros::Duration tag_delay(1.5);
+
 // Publisher that sends out an april tag that is a possible goal node?
 ros::Publisher tags_pub;
 // Publisher that publishes a pose for visualization purposes to the "/new_pose"
@@ -29,21 +35,79 @@ void init(ros::NodeHandle nh)
   tags_pub = nh.advertise<geometry_msgs::PoseStamped>("/apriltags", 100);
   new_pose_pub = nh.advertise<geometry_msgs::PoseStamped>("/new_pose", 100);
   new_initial_pose_pub = nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("initialpose", 100);
+
+}
+
+bool shouldUpdate(){
+  
+  // Check for existence of whether or not we've localized before
+  if(lastPoseUpdateTime == NULL){
+    // Never Localized, First Instance of Seeing Tag
+    if(first_seen_tag == NULL){
+      first_seen_tag = ros::Time::now();
+      return false;
+    }
+    // In case the robot sees for less than duration then drives away and comes back, we need to reset first tag
+    else if(ros::Time::now - first_seen_tag > 2*tag_delay){
+      first_seen_tag = ros::Time::now();
+      return false;
+    }
+    // Check to see if it's seen tag long enough
+    else if(ros::Time::now() - first_seen_tag < tag_delay){
+      return false;
+    }
+    // Never Localized, hasn't seen tag long enough
+    else{
+      lastPoseUpdateTime = ros::Time::now();
+      // Reset to NULL for next usage
+      first_seen_tag = NULL;
+      return true;
+    }
+  }
+  // We've April Tag Localized Before
+  else{
+    // Check to see if it's been long enough since localizing to localize again
+    if(ros::Time::now() - lastPoseUpdateTime < localization_delay){
+      return false;
+    }
+    // Previously Localized, First Instance of Seeing Tag
+    else if(first_seen_tag == NULL){
+      first_seen_tag = ros::Time::now();
+      return false;
+    }
+    // In case the robot sees for less than duration then drives away and comes back, we need to reset first seen
+    else if(ros::Time::now - first_seen_tag > 2*tag_delay){
+      first_seen_tag = ros::Time::now();
+      return false;
+    }
+    // Check to see if it's been long enough since seeing the tag to get transform
+    else if(ros::Time::now() - first_seen_tag < tag_delay){
+      return false;
+    }
+    // Previously Localized, but has been long enough and seen tag long enough
+    else{
+      lastPoseUpdateTime = ros::Time::now();
+      // Reset to NULL for next usage
+      first_seen_tag = NULL;
+      return true;
+    }
+  }
 }
 
 bool AprilTagLocalize(tf::TransformListener &listener)
 {
-  static ros::Time lastPoseUpdateTime = ros::Time::now();
-
-  if (ros::Time::now() - lastPoseUpdateTime > ros::Duration(0))
+    
+  for (int i = 0; i < landmark_frames.size(); i++)
   {
-    for (int i = 0; i < landmark_frames.size(); i++)
-    {
-      try{
-        // if it can find a transformation between a landmark frame and april tag frame (i.e. both are in the tree)
-        // watch out for tags still in tree but not seen in the camera
-        if (listener.canTransform (landmark_frames[i], april_frames[i], ros::Time(0)))
-        {
+    
+    try{
+      // if it can find a transformation between a landmark frame and april tag frame (i.e. both are in the tree)
+      // watch out for tags still in tree but not seen in the camera
+      if (listener.canTransform (landmark_frames[i], april_frames[i], ros::Time(0)))
+      {
+        // shouldUpdate ASSUMES IT ONLY GETS CALLED WHEN AN APRIL TAG IS SEEN
+        // Maybe introduce a parameter that tracks which april tag is seen?
+        if(shouldUpdate()){
           tf::StampedTransform mapLandmarkTransform;
           tf::StampedTransform differenceTransform;
           tf::StampedTransform tagToBaseTransform;
@@ -118,10 +182,11 @@ bool AprilTagLocalize(tf::TransformListener &listener)
           }
         }
       }
-      catch (tf::TransformException ex){
-        ROS_INFO("could not transform from %s to %s", landmark_frames[i].c_str(), april_frames[i].c_str());
-        return false;
-      }
+    }
+
+    catch (tf::TransformException ex){
+      ROS_INFO("could not transform from %s to %s", landmark_frames[i].c_str(), april_frames[i].c_str());
+      return false;
     }
   }
 }
