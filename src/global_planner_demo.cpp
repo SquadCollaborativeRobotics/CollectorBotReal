@@ -60,9 +60,10 @@ search_pose search_poses[] = { {0.5, -1, 0, 1},
                                {2, 1, 1, 0},
                                {-1.8, .9, -.73, .68},
                                {-2, -1, 0, 1},
-                               {0, -1, 0.67, 0.72},
-                               {0, 0, 0, 1}};
-
+                               {0, -1, 0.67, 0.72}
+                             };
+// End position
+search_pose end_pose = {0, 0, 0, 1};
 
 // Sets given goal to given x,y and rotation quat rz,rw
 void setGoalPoseRaw(double x, double y, double rz, double rw, 
@@ -89,16 +90,19 @@ void getGoalPoseFromTrashcan(const geometry_msgs::PoseStamped::ConstPtr& msg,
   goal.target_pose.header.stamp = ros::Time::now();
 }
 
+bool found_trashcan = false;
+
 // Callback for new april tags
 void trashcanTagSearcherCallback(const geometry_msgs::PoseStamped::ConstPtr& msg) {
-  ROS_INFO("April Tag Callback!");
+  // ROS_INFO("April Tag Callback!");
 
-  ROS_INFO("Header : %s", msg->header.frame_id.c_str());
+  // ROS_INFO("Header : %s", msg->header.frame_id.c_str());
 
   // If april tag is id 6 (trashcan)
   if (msg->header.frame_id.c_str()[0] == '6') {
     ROS_INFO("Header Match!");
     geometry_msgs::PoseStamped goal_pose;
+    found_trashcan = true;
 
     move_base_msgs::MoveBaseGoal goal;
     
@@ -156,6 +160,18 @@ void transition(State state, ros::NodeHandle &n) {
 
       case DUMP_TRASH:
       sub.shutdown();
+      {
+        // Set goal to search pose
+        move_base_msgs::MoveBaseGoal goal;
+        setGoalPose(end_pose, goal);
+        goal.target_pose.header.frame_id = "map";
+        goal.target_pose.header.stamp = ros::Time::now();
+        
+        // Send goal to action client
+        action_client_ptr->sendGoal(goal);
+        ROS_INFO("END GOAL SENT");
+      }
+
       break;
 
       case END:
@@ -213,6 +229,10 @@ int main(int argc, char** argv){
   while(ros::ok()){
     if (command_value == 0) {
       transition(SAFE, n);
+    }
+    if (found_trashcan) {
+      found_trashcan = false;
+      transition(APPROACH_TRASH, n);
     }
     // State machine command override from safe to chosen state
     switch(currState) {
@@ -281,7 +301,7 @@ int main(int argc, char** argv){
       ROS_INFO("Status : %s", action_client_ptr->getState().toString().c_str());
       if (action_client_ptr->getState() == actionlib::SimpleClientGoalState::SUCCEEDED ||
           command_value == 6) {
-        transition(END, n);
+        transition(DUMP_TRASH, n);
       }
       break;
 
@@ -292,9 +312,12 @@ int main(int argc, char** argv){
       }
       break;
 
+      // Dump trash means go to the end search_pos 6
       case DUMP_TRASH:
-      // Placeholder transition for now
-      transition(END, n);
+      if (action_client_ptr->getState() == actionlib::SimpleClientGoalState::SUCCEEDED ||
+          command_value == 8) {
+        transition(END, n);
+      }
       break;
 
       case END:

@@ -15,6 +15,7 @@
 
   <!-- Takes Depthcloud data and formats as a laserscan -->
   <node name="kinect_laser" type="depthimage_to_laserscan" pkg="depthimage_to_laserscan" args="image:=/camera/depth/image_raw">
+    <remap from="scan" to="kinectscan"/>
   </node>
 
   <!-- Handles the static transforms for scr_proto -->

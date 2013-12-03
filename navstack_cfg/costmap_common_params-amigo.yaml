@@ -6,9 +6,9 @@ raytrace_range: 3.5
 # [x0,y0] in this order=> front right, rear right, rear left, front left
 footprint: [[0.28, 0.25], [0.28, -0.25], [-0.28, -0.25], [-0.28, 0.25]]
 #robot_radius: ir_of_robot
-inflation_radius: 1.0
+inflation_radius: 0.5
 
-observation_sources: kinect_sensor sonar_sensor
+observation_sources: sonar_sensor kinect_sensor
 
-kinect_sensor: {sensor_frame: /camera_depth_frame, data_type: LaserScan, topic: /scan, marking: true, clearing: true}
-sonar_sensor: {sensor_frame: /base_link, data_type: LaserScan, topic: /sonarscan, marking: true, clearing: true}
+sonar_sensor: {sensor_frame: /base_link, data_type: LaserScan, topic: /scan, marking: true, clearing: true}
+kinect_sensor: {sensor_frame: /camera_depth_frame, data_type: LaserScan, topic: /kinectscan, marking: true, clearing: true}
