@@ -197,7 +197,7 @@ int main(int argc, char** argv){
   // Subscribe to command node
   ros::Subscriber cmd_sub = n.subscribe("cmd_state", 10, commandCallback);
 
-  action_client_ptr.reset( new MoveBaseClient("move_base", false) );
+  action_client_ptr.reset( new MoveBaseClient("move_base", true) );
 
   // Create Rate Object for sleeping
   ros::Rate r(1);
