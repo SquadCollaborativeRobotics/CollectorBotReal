@@ -261,7 +261,8 @@ int main(int argc, char **argv)
         quat = transform.getRotation();
 
         char buf[2];
-        ps.header.frame_id = sprintf(buf, "%d", i);
+        sprintf(buf, "%d\n", i);
+        ps.header.frame_id = buf;
         ps.pose.position.x = transform.getOrigin().x();
         ps.pose.position.y = transform.getOrigin().y();
         ps.pose.position.z = transform.getOrigin().z();
