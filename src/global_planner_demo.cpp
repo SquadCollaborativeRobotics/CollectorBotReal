@@ -50,6 +50,9 @@ ros::Subscriber sub;
 enum State { SAFE, SEARCH_A, SEARCH_B, SEARCH_C, SEARCH_D, SEARCH_E, APPROACH_TRASH, DUMP_TRASH, END};
 State currState = SAFE;
 
+// Command value read from topic, or on transition to SAFE
+int command_value = 0;
+
 // Search poses
 struct search_pose
 {
@@ -129,6 +132,7 @@ void transition(State state, ros::NodeHandle &n) {
       case SAFE:
       action_client_ptr->cancelAllGoals(); // Cancel any current move goals
       sub.shutdown();
+      command_value = 0;
       break;
 
       case SEARCH_A:
@@ -198,8 +202,6 @@ void transition(State state, ros::NodeHandle &n) {
   }
 }
 
-
-int command_value = 0;
 void commandCallback(const std_msgs::Int32::ConstPtr& msg) {
   command_value = msg->data;
   ROS_INFO("Received command %d", command_value);

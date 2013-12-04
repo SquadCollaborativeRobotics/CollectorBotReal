@@ -21,8 +21,8 @@ ros::Time first_seen_tag;
 bool first_seen_tag_exists = false;
 
 ros::Duration localization_delay(30.0);
-ros::Duration tag_delay(1.5);
-ros::Duration tag_timeout(3.0);
+ros::Duration tag_delay(3.0);
+ros::Duration tag_timeout(5.0);
 
 // Publisher that sends out an april tag that is a possible goal node?
 ros::Publisher tags_pub;
@@ -43,6 +43,15 @@ void init(ros::NodeHandle nh)
   new_initial_pose_pub = nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("initialpose", 100);
 
 }
+
+// If we see a tag X 
+//  If haven't seen it before
+//   check tag X seen at time A
+//  else if time since last seen > t1
+//   update
+//  else if time since last seen > tdead
+//   cancel
+
 
 bool shouldUpdate(){
   
@@ -71,7 +80,7 @@ bool shouldUpdate(){
       last_pose_update_time = ros::Time::now();
       // Reset tags for next usage
       first_seen_tag_exists = false;
-      last_pose_update_time_exists = false;
+      last_pose_update_time_exists = true;
       return true;
     }
   }
@@ -102,7 +111,7 @@ bool shouldUpdate(){
       last_pose_update_time = ros::Time::now();
       // Reset to false for next usage
       first_seen_tag_exists = false;
-      last_pose_update_time_exists = false;
+      last_pose_update_time_exists = true;
       return true;
     }
   }
@@ -133,7 +142,7 @@ bool AprilTagLocalize(tf::TransformListener &listener)
           listener.lookupTransform(landmark_frames[i], april_frames[i],
           ros::Time(0), difference_transform);
 
-          if (ros::Time::now() - tag_to_base_transform.stamp_ < ros::Duration(1.0))
+          if (ros::Time::now() - tag_to_base_transform.stamp_ < ros::Duration(0.1))
           {
 
             //Create a pose based in the /map frame
