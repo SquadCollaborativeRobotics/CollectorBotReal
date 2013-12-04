@@ -21,7 +21,7 @@ ros::Time first_seen_tag;
 bool first_seen_tag_exists = false;
 
 ros::Duration localization_delay(30.0);
-ros::Duration tag_delay(3.0);
+ros::Duration tag_delay(1.5);
 ros::Duration tag_timeout(5.0);
 
 // Publisher that sends out an april tag that is a possible goal node?
@@ -50,8 +50,10 @@ void init(ros::NodeHandle nh)
 //  else if time since last seen > t1
 //   update
 //  else if time since last seen > tdead
-//   cancel
-
+//   cancel/reset
+//  else
+//   update pose estimate with tag X
+// do this not more than once every Y seconds
 
 bool shouldUpdate(){
   
@@ -80,7 +82,7 @@ bool shouldUpdate(){
       last_pose_update_time = ros::Time::now();
       // Reset tags for next usage
       first_seen_tag_exists = false;
-      last_pose_update_time_exists = true;
+      last_pose_update_time_exists = false;
       return true;
     }
   }
@@ -111,7 +113,7 @@ bool shouldUpdate(){
       last_pose_update_time = ros::Time::now();
       // Reset to false for next usage
       first_seen_tag_exists = false;
-      last_pose_update_time_exists = true;
+      last_pose_update_time_exists = false;
       return true;
     }
   }
@@ -130,6 +132,7 @@ bool AprilTagLocalize(tf::TransformListener &listener)
       {
         // shouldUpdate ASSUMES IT ONLY GETS CALLED WHEN AN APRIL TAG IS SEEN
         // Maybe introduce a parameter that tracks which april tag is seen?
+        // ROS_INFO("Could update %d %d", first_seen_tag_exists, last_pose_update_time_exists);
         if (shouldUpdate()){
           tf::StampedTransform map_landmark_transform;
           tf::StampedTransform difference_transform;
@@ -142,6 +145,7 @@ bool AprilTagLocalize(tf::TransformListener &listener)
           listener.lookupTransform(landmark_frames[i], april_frames[i],
           ros::Time(0), difference_transform);
 
+          // If tiem when transform was generated was less than 0.1 seconds ago.
           if (ros::Time::now() - tag_to_base_transform.stamp_ < ros::Duration(0.1))
           {
 
@@ -198,6 +202,7 @@ bool AprilTagLocalize(tf::TransformListener &listener)
             poseStamped.header.stamp = ros::Time::now();
             poseStamped.pose = pose;
 
+            ROS_INFO("PUBLISHING NEW POSE ESTIMATE!");
             new_pose_pub.publish(poseStamped);
             new_initial_pose_pub.publish(newRobotPose);
 
@@ -217,6 +222,7 @@ bool AprilTagLocalize(tf::TransformListener &listener)
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "AprilTagsProcessor_node");
+  ROS_INFO("STARTING APRIL TAG PROCESSOR");
 
   ros::NodeHandle nh;
 

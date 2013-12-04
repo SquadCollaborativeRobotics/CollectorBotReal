@@ -109,16 +109,14 @@ void trashcanTagSearcherCallback(const geometry_msgs::PoseStamped::ConstPtr& msg
 
     move_base_msgs::MoveBaseGoal goal;
     
-    if (currState == APPROACH_TRASH) {
-      // Set goal position to in front of april tag
-      getGoalPoseFromTrashcan(msg, goal);
+    // Set goal position to in front of april tag
+    getGoalPoseFromTrashcan(msg, goal);
 
-      // http://mirror.umd.edu/roswiki/doc/diamondback/api/actionlib/html/classactionlib_1_1simple__action__client_1_1SimpleActionClient.html#a6bdebdd9f43a470ecd361d2c8b743188
-      // If a previous goal is already active when this is called. 
-      // We simply forget about that goal and start tracking the new goal. 
-      // No cancel requests are made.
-      action_client_ptr->sendGoal(goal);
-    }
+    // http://mirror.umd.edu/roswiki/doc/diamondback/api/actionlib/html/classactionlib_1_1simple__action__client_1_1SimpleActionClient.html#a6bdebdd9f43a470ecd361d2c8b743188
+    // If a previous goal is already active when this is called. 
+    // We simply forget about that goal and start tracking the new goal. 
+    // No cancel requests are made.
+    action_client_ptr->sendGoal(goal);
   }
 }
 
