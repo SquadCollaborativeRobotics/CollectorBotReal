@@ -53,6 +53,8 @@ State currState = SAFE;
 // Command value read from topic, or on transition to SAFE
 int command_value = 0;
 
+bool given_start_state = false;
+
 // Search poses
 struct search_pose
 {
@@ -103,7 +105,7 @@ void trashcanTagSearcherCallback(const geometry_msgs::PoseStamped::ConstPtr& msg
 
   // If april tag is id 6 (trashcan)
   if (msg->header.frame_id.c_str()[0] == '6') {
-    ROS_INFO("Header Match!");
+    // ROS_INFO("Header Match!");
     geometry_msgs::PoseStamped goal_pose;
     found_trashcan = true;
 
@@ -116,6 +118,7 @@ void trashcanTagSearcherCallback(const geometry_msgs::PoseStamped::ConstPtr& msg
     // If a previous goal is already active when this is called. 
     // We simply forget about that goal and start tracking the new goal. 
     // No cancel requests are made.
+    ROS_INFO("TRASH GOAL SENT!");
     action_client_ptr->sendGoal(goal);
   }
 }
@@ -159,6 +162,7 @@ void transition(State state, ros::NodeHandle &n) {
       break;
 
       case APPROACH_TRASH:
+      sub.shutdown();
       break;
 
       case DUMP_TRASH:
@@ -229,6 +233,7 @@ int main(int argc, char** argv){
 
   while(ros::ok()){
     if (command_value == 0) {
+      given_start_state = false;
       transition(SAFE, n);
     }
     if (found_trashcan) {
@@ -240,6 +245,7 @@ int main(int argc, char** argv){
       case SAFE:
       switch (command_value) {
         case 1:
+        given_start_state = true;
         transition(SEARCH_A, n);
         break;
         case 2:
@@ -324,8 +330,7 @@ int main(int argc, char** argv){
       case END:
       break;
     }
-
-    if (action_client_ptr->getState() == actionlib::SimpleClientGoalState::ABORTED) {
+    if (given_start_state && action_client_ptr->getState() == actionlib::SimpleClientGoalState::ABORTED) {
       transition(SAFE, n);
     }
     
