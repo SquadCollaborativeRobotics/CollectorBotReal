@@ -5,7 +5,7 @@
   <machine name="local_alt" address="localhost" default="true"/>
 
   <!-- Node Processes April Tags seen and localizes robot -->
-  <node name="april_tags_processor" pkg="scr_proto" type="april_tags_processor"></node>
+  <!-- <node name="april_tags_processor" pkg="scr_proto" type="april_tags_processor"></node> -->
 
   <!-- Node takes sonar data and formats it as laserscan data -->
   <node name="sonar_to_laserscan" pkg="sonar_to_laserscan" type="sonar_to_laserscan_node"></node>

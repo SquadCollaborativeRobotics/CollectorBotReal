@@ -219,6 +219,8 @@ bool AprilTagLocalize(tf::TransformListener &listener)
   }
 }
 
+ros::Time last_time;
+
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "AprilTagsProcessor_node");
@@ -227,6 +229,8 @@ int main(int argc, char **argv)
   ros::NodeHandle nh;
 
   tf::TransformListener listener(nh);
+
+  last_time = ros::Time::now();
 
   init(nh);
 
@@ -267,7 +271,12 @@ int main(int argc, char **argv)
         q.y=quat.y();
         q.z=quat.z();
         ps.pose.orientation = q;
-        tags_pub.publish(ps);
+        // Publish at max rate of 1 Hz
+        // not tied to ros::rate since want to see most current up to 10Hz
+        if (ros::Time::now() - ros::Duration(1.0) > last_time) {
+          tags_pub.publish(ps);
+          last_time = ros::Time::now();
+        }
       }
     }
 

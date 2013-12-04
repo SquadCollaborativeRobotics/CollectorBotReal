@@ -84,8 +84,8 @@ void setGoalPose(const search_pose &s,
 // Given a trashcan as a PoseStamped messge, returns the goal pose in front of it
 void getGoalPoseFromTrashcan(const geometry_msgs::PoseStamped::ConstPtr& msg,
                              move_base_msgs::MoveBaseGoal &goal) {
-  setGoalPoseRaw(msg->pose.position.x - 0.5*cos(msg->pose.orientation.z),
-                 msg->pose.position.y - 0.5*sin(msg->pose.orientation.z),
+  setGoalPoseRaw(msg->pose.position.x - 0.5*cos(msg->pose.orientation.w),
+                 msg->pose.position.y - 0.5*sin(msg->pose.orientation.w),
                  msg->pose.orientation.z,
                  msg->pose.orientation.w,
                  goal);
