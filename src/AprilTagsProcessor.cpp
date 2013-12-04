@@ -9,14 +9,20 @@
 
 #include <math.h>
 
+// Signifies that that time variable has not yet been set
 std::vector<std::string> landmark_frames;
 std::vector<std::string> april_frames;
 
 // Hard Coded Hack, probably need a data structure to hold
-ros::Time lastPoseUpdateTime = NULL;
-ros::Time first_seen_tag = NULL;
+ros::Time last_pose_update_time;
+bool last_pose_update_time_exists = false;
+
+ros::Time first_seen_tag;
+bool first_seen_tag_exists = false;
+
 ros::Duration localization_delay(30.0);
 ros::Duration tag_delay(1.5);
+ros::Duration tag_timeout(3.0);
 
 // Publisher that sends out an april tag that is a possible goal node?
 ros::Publisher tags_pub;
@@ -40,55 +46,63 @@ void init(ros::NodeHandle nh)
 
 bool shouldUpdate(){
   
-  // Check for existence of whether or not we've localized before
-  if(lastPoseUpdateTime == NULL){
-    // Never Localized, First Instance of Seeing Tag
-    if(first_seen_tag == NULL){
+  // Check for existence of whether or not we've localized before.
+  if (!last_pose_update_time_exists){
+    // Never localized.
+    if (!first_seen_tag_exists){
+      // First time seeing a tag, set first seen tag.
       first_seen_tag = ros::Time::now();
+      first_seen_tag_exists = true;
       return false;
     }
-    // In case the robot sees for less than duration then drives away and comes back, we need to reset first tag
-    else if(ros::Time::now - first_seen_tag > 2*tag_delay){
+    else if (ros::Time::now() - first_seen_tag > tag_timeout){
+      // Robot sees for less than duration then drives away and comes back
+      // Set first seen tag again.
       first_seen_tag = ros::Time::now();
+      first_seen_tag_exists = true;
       return false;
     }
-    // Check to see if it's seen tag long enough
-    else if(ros::Time::now() - first_seen_tag < tag_delay){
+    else if (ros::Time::now() - first_seen_tag < tag_delay){
+      // Haven't seen tag long enough, carry on.
       return false;
     }
-    // Never Localized, hasn't seen tag long enough
     else{
-      lastPoseUpdateTime = ros::Time::now();
-      // Reset to NULL for next usage
-      first_seen_tag = NULL;
+      // Never localized and haven't seen tag long enough
+      last_pose_update_time = ros::Time::now();
+      // Reset tags for next usage
+      first_seen_tag_exists = false;
+      last_pose_update_time_exists = false;
       return true;
     }
   }
-  // We've April Tag Localized Before
   else{
-    // Check to see if it's been long enough since localizing to localize again
-    if(ros::Time::now() - lastPoseUpdateTime < localization_delay){
+    // We've April Tag Localized Before
+    if (ros::Time::now() - last_pose_update_time < localization_delay){
+      // Not long enough to localize again
       return false;
     }
-    // Previously Localized, First Instance of Seeing Tag
-    else if(first_seen_tag == NULL){
+    else if (!first_seen_tag_exists){
+      // Previously localized, first time seeing a tag
       first_seen_tag = ros::Time::now();
+      first_seen_tag_exists = true;
       return false;
     }
-    // In case the robot sees for less than duration then drives away and comes back, we need to reset first seen
-    else if(ros::Time::now - first_seen_tag > 2*tag_delay){
+    else if (ros::Time::now() - first_seen_tag > tag_timeout){
+      // Robot sees for less than duration then drives away and comes back
       first_seen_tag = ros::Time::now();
+      first_seen_tag_exists = true;
       return false;
     }
-    // Check to see if it's been long enough since seeing the tag to get transform
-    else if(ros::Time::now() - first_seen_tag < tag_delay){
+    else if (ros::Time::now() - first_seen_tag < tag_delay){
+      // Not long enough seeing tag yet.
       return false;
     }
-    // Previously Localized, but has been long enough and seen tag long enough
     else{
-      lastPoseUpdateTime = ros::Time::now();
-      // Reset to NULL for next usage
-      first_seen_tag = NULL;
+      // Previously Localized, but has been long enough and seen tag long enough
+      last_pose_update_time = ros::Time::now();
+      // Reset to false for next usage
+      first_seen_tag_exists = false;
+      last_pose_update_time_exists = false;
       return true;
     }
   }
@@ -107,37 +121,37 @@ bool AprilTagLocalize(tf::TransformListener &listener)
       {
         // shouldUpdate ASSUMES IT ONLY GETS CALLED WHEN AN APRIL TAG IS SEEN
         // Maybe introduce a parameter that tracks which april tag is seen?
-        if(shouldUpdate()){
-          tf::StampedTransform mapLandmarkTransform;
-          tf::StampedTransform differenceTransform;
-          tf::StampedTransform tagToBaseTransform;
+        if (shouldUpdate()){
+          tf::StampedTransform map_landmark_transform;
+          tf::StampedTransform difference_transform;
+          tf::StampedTransform tag_to_base_transform;
 
           listener.lookupTransform(april_frames[i], "/base_link",
-          ros::Time(0), tagToBaseTransform);
+          ros::Time(0), tag_to_base_transform);
           listener.lookupTransform("map", landmark_frames[i],
-          ros::Time(0), mapLandmarkTransform);
+          ros::Time(0), map_landmark_transform);
           listener.lookupTransform(landmark_frames[i], april_frames[i],
-          ros::Time(0), differenceTransform);
+          ros::Time(0), difference_transform);
 
-          if (ros::Time::now() - tagToBaseTransform.stamp_ < ros::Duration(1.0))
+          if (ros::Time::now() - tag_to_base_transform.stamp_ < ros::Duration(1.0))
           {
 
             //Create a pose based in the /map frame
             geometry_msgs::PoseWithCovariance poseWithCovariance;
             geometry_msgs::Pose pose;
 
-            tf::Vector3 lm_vec = mapLandmarkTransform.getOrigin();
-            tf::Vector3 april_vec = tagToBaseTransform.getOrigin();
-            tf::Matrix3x3 rot_vec = mapLandmarkTransform.getBasis();
+            tf::Vector3 lm_vec = map_landmark_transform.getOrigin();
+            tf::Vector3 april_vec = tag_to_base_transform.getOrigin();
+            tf::Matrix3x3 rot_vec = map_landmark_transform.getBasis();
 
-            // std::cout << tagToBaseTransform.getOrigin().x() <<" "<< tagToBaseTransform.getOrigin().y() <<" "<< tagToBaseTransform.getOrigin().z() <<" "<< std::endl;
-            // std::cout << mapLandmarkTransform.getOrigin().x() <<" "<< mapLandmarkTransform.getOrigin().y() <<" "<< mapLandmarkTransform.getOrigin().z() <<" "<< std::endl;
+            // std::cout << tag_to_base_transform.getOrigin().x() <<" "<< tag_to_base_transform.getOrigin().y() <<" "<< tag_to_base_transform.getOrigin().z() <<" "<< std::endl;
+            // std::cout << map_landmark_transform.getOrigin().x() <<" "<< map_landmark_transform.getOrigin().y() <<" "<< map_landmark_transform.getOrigin().z() <<" "<< std::endl;
 
             tf::Transform tf;
             tf.setOrigin(lm_vec + (april_vec * rot_vec));
 
-            double yawMap = getYaw(mapLandmarkTransform.getRotation());
-            double yawTag = getYaw(tagToBaseTransform.getRotation());
+            double yawMap = getYaw(map_landmark_transform.getRotation());
+            double yawTag = getYaw(tag_to_base_transform.getRotation());
 
             tf.setRotation(tf::createQuaternionFromYaw(yawMap + yawTag));
 
@@ -154,7 +168,7 @@ bool AprilTagLocalize(tf::TransformListener &listener)
 
             geometry_msgs::PoseWithCovarianceStamped newRobotPose;
             newRobotPose.header.frame_id = "map";
-            newRobotPose.header.stamp = tagToBaseTransform.stamp_;
+            newRobotPose.header.stamp = tag_to_base_transform.stamp_;
 
             poseWithCovariance.pose = pose;
 
@@ -178,7 +192,7 @@ bool AprilTagLocalize(tf::TransformListener &listener)
             new_pose_pub.publish(poseStamped);
             new_initial_pose_pub.publish(newRobotPose);
 
-            lastPoseUpdateTime = ros::Time::now();
+            last_pose_update_time = ros::Time::now();
           }
         }
       }

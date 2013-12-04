@@ -56,9 +56,9 @@ struct search_pose
   // x, y, rot
   double x, y, rz, rw;
 };
-search_pose search_poses[] = { {0.5, -1, 0, 1},
-                               {2, 1, 1, 0},
-                               {-1.8, .9, -.73, .68},
+search_pose search_poses[] = { {1, -1, 0, 1},
+                               {1.6, 1, 1, 0},
+                               {-2, .85, -.73, .68},
                                {-2, -1, 0, 1},
                                {0, -1, 0.67, 0.72}
                              };

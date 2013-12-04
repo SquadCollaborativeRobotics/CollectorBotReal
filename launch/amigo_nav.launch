@@ -6,7 +6,7 @@
   <include file="$(find scr_proto)/launch/amigo_launch.launch" />
 
   <!-- Run the map server -->
-  <node name="map_server" pkg="map_server" type="map_server" args="$(find scr_proto)/maps/testing127.yaml"/>
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find scr_proto)/maps/hok1.yaml"/>
 
   <!-- - Run AMCL  -->
   <node pkg="amcl" type="amcl" name="amcl" output="screen">

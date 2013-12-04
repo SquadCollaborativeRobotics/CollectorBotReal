@@ -4,9 +4,9 @@ obstacle_range: 3.0
 raytrace_range: 3.5
 
 # [x0,y0] in this order=> front right, rear right, rear left, front left
-footprint: [[0.28, 0.25], [0.28, -0.25], [-0.28, -0.25], [-0.28, 0.25]]
+footprint: [[0.20, 0.25], [0.20, -0.25], [-0.20, -0.25], [-0.20, 0.25]]
 #robot_radius: ir_of_robot
-inflation_radius: 1.0
+inflation_radius: 0.55
 
 observation_sources: sonar_sensor kinect_sensor
 
