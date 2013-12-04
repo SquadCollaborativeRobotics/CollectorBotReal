@@ -127,6 +127,7 @@ void transition(State state, ros::NodeHandle &n) {
     int chosen_search_pose = -1;
     switch(currState) {
       case SAFE:
+      action_client_ptr->cancelAllGoals(); // Cancel any current move goals
       sub.shutdown();
       break;
 
@@ -322,6 +323,10 @@ int main(int argc, char** argv){
 
       case END:
       break;
+    }
+
+    if (action_client_ptr->getState() == actionlib::SimpleClientGoalState::ABORTED) {
+      transition(SAFE, 0);
     }
     
     // Update callbacks after the fact, for next loop iteration.
