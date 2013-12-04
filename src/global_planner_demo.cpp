@@ -326,7 +326,7 @@ int main(int argc, char** argv){
     }
 
     if (action_client_ptr->getState() == actionlib::SimpleClientGoalState::ABORTED) {
-      transition(SAFE, 0);
+      transition(SAFE, n);
     }
     
     // Update callbacks after the fact, for next loop iteration.
