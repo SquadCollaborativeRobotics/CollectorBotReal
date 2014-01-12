@@ -44,7 +44,7 @@ void init(ros::NodeHandle nh)
 
 }
 
-// If we see a tag X 
+// If we see a tag X
 //  If haven't seen it before
 //   check tag X seen at time A
 //  else if time since last seen > t1
@@ -56,7 +56,7 @@ void init(ros::NodeHandle nh)
 // do this not more than once every Y seconds
 
 bool shouldUpdate(){
-  
+
   // Check for existence of whether or not we've localized before.
   if (!last_pose_update_time_exists){
     // Never localized.
@@ -121,10 +121,9 @@ bool shouldUpdate(){
 
 bool AprilTagLocalize(tf::TransformListener &listener)
 {
-    
   for (int i = 0; i < landmark_frames.size(); i++)
   {
-    
+
     try{
       // if it can find a transformation between a landmark frame and april tag frame (i.e. both are in the tree)
       // watch out for tags still in tree but not seen in the camera
@@ -148,7 +147,6 @@ bool AprilTagLocalize(tf::TransformListener &listener)
           // If tiem when transform was generated was less than 0.1 seconds ago.
           if (ros::Time::now() - tag_to_base_transform.stamp_ < ros::Duration(0.1))
           {
-
             //Create a pose based in the /map frame
             geometry_msgs::PoseWithCovariance poseWithCovariance;
             geometry_msgs::Pose pose;
@@ -187,12 +185,15 @@ bool AprilTagLocalize(tf::TransformListener &listener)
 
             // create the covariance array (the values are based on what rviz sends)
             // TODO: change based on confidence (distance to tag?)
-            // boost::array<double, 36> covariance = {0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25,
-            // 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-            // 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.06853891945200942};
-            boost::array<double, 36> covariance = {0.05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.05,
-            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.025};
+            // row order covariance.... first row (0-5) = covariance from x, (6-12) = cov. from y, etc.
+            // in this order: (x, y, z, rotation about X axis, rotation about Y axis, rotation about Z axis)
+            boost::array<float, 36> covariance = {
+              0.05, 0.0, 0.0, 0.0, 0.0, 0.0, // there is some variance in x due to moving in x
+              0.0, 0.05,0.0, 0.0, 0.0, 0.0,  // there is some variance in y due to moving in y
+              0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  // No z motion occurs... no variance
+              0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  // no x rotation occurs
+              0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  // no y rotation ccurs
+              0.0, 0.0, 0.0, 0.0, 0.0, 0.05};// z rotation is fairly uncertain???
 
             poseWithCovariance.covariance = covariance;
             newRobotPose.pose = poseWithCovariance;
