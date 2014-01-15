@@ -134,15 +134,15 @@ bool AprilTagLocalize(tf::TransformListener &listener)
         // ROS_INFO("Could update %d %d", first_seen_tag_exists, last_pose_update_time_exists);
         if (shouldUpdate()){
           tf::StampedTransform map_landmark_transform;
-          tf::StampedTransform difference_transform;
           tf::StampedTransform tag_to_base_transform;
 
           listener.lookupTransform(april_frames[i], "/base_link",
-          ros::Time(0), tag_to_base_transform);
+            ros::Time(0), tag_to_base_transform);
+
+          ROS_INFO_STREAM("Time of tag transform: "<<tag_to_base_transform.stamp_);
+
           listener.lookupTransform("map", landmark_frames[i],
-          ros::Time(0), map_landmark_transform);
-          listener.lookupTransform(landmark_frames[i], april_frames[i],
-          ros::Time(0), difference_transform);
+            tag_to_base_transform.stamp_, map_landmark_transform);
 
           // If tiem when transform was generated was less than 0.1 seconds ago.
           if (ros::Time::now() - tag_to_base_transform.stamp_ < ros::Duration(0.1))
@@ -158,6 +158,7 @@ bool AprilTagLocalize(tf::TransformListener &listener)
             // std::cout << tag_to_base_transform.getOrigin().x() <<" "<< tag_to_base_transform.getOrigin().y() <<" "<< tag_to_base_transform.getOrigin().z() <<" "<< std::endl;
             // std::cout << map_landmark_transform.getOrigin().x() <<" "<< map_landmark_transform.getOrigin().y() <<" "<< map_landmark_transform.getOrigin().z() <<" "<< std::endl;
 
+            //Transform from map to robot!
             tf::Transform tf;
             tf.setOrigin(lm_vec + (april_vec * rot_vec));
 
