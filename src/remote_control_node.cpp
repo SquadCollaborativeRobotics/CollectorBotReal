@@ -6,6 +6,7 @@
 #include <termios.h>
 #include <stdio.h>
 #include <ros/ros.h>
+#include <geometry_msgs/Twist.h>
 
 #define UP_ARROW    65
 #define DOWN_ARROW  66
@@ -56,14 +57,33 @@ int main (int argc, char ** argv)
         std::string("Type h for help\n\tType 't' to change default cmd_vel topic (defaults to \\cmd_vel")<<
             std::string("\n\ttype 's' or 'e' or to stop (e-stop)"));
 
+    // Publishers
+    ros::Publisher cmd_vel_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
+    geometry_msgs::Twist stop_msg;
+
+    stop_msg.linear.x = 0;
+    stop_msg.linear.y = 0;
+    stop_msg.linear.z = 0;
+    stop_msg.angular.x= 0;
+    stop_msg.angular.y= 0;
+    stop_msg.angular.z= 0;
+
+    geometry_msgs::Twist cmd_vel_msg;
+    cmd_vel_msg = stop_msg;
+
     bool stop = false;
     char c=0;
 
 
     while(nh.ok() && stop == false)
     {
+        ros::spinOnce();
+
         setupTerminal();
         c=getch();
+
+        double angMult = 0.4;
+        double linMult = 1.0;
 
         if (c == ESCAPE_KEY && getch() == LEFT_BRACKET_KEY){
             c = getch();
@@ -71,20 +91,24 @@ int main (int argc, char ** argv)
             switch (c)
             {
                 case UP_ARROW:
-                //ROS_INFO("UP ARROW\n");
-                break;
+                    cmd_vel_msg = stop_msg;
+                    cmd_vel_msg.linear.x = 1 * linMult;
+                    break;
                 case DOWN_ARROW:
-                //ROS_INFO("DOWN ARROW\n");
-                break;
+                    cmd_vel_msg = stop_msg;
+                    cmd_vel_msg.linear.x = -1 * linMult;
+                    break;
                 case LEFT_ARROW:
-                //ROS_INFO("LEFT ARROW\n");
-                break;
+                    cmd_vel_msg = stop_msg;
+                    cmd_vel_msg.angular.z = 1 * angMult;
+                    break;
                 case RIGHT_ARROW:
-                //ROS_INFO("RIGHT ARROW\n");
-                break;
+                    cmd_vel_msg = stop_msg;
+                    cmd_vel_msg.angular.z = -1 * angMult;
+                    break;
                 default:
-                //ROS_INFO("idk...\n");
-                break;
+                    //ROS_INFO("idk...\n");
+                    break;
             }
         }
         else{
@@ -92,15 +116,19 @@ int main (int argc, char ** argv)
             {
                 //TODO: E-STOP CODE
                 case 's':
+                    cmd_vel_msg = stop_msg;
+                    break;
                 case 'e':
                     stop=true;
-                break;
+                    break;
                 default:
-                //ROS_INFO("idk...\n");
-                break;
+                    //ROS_INFO("idk...\n");
+                    break;
             }
         }
         resetTerminal();
+
+        cmd_vel_pub.publish(cmd_vel_msg);
 
     } while (stop == false);
 
