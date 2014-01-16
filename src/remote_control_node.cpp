@@ -114,11 +114,11 @@ int main (int argc, char ** argv)
         else{
             switch (c)
             {
-                //TODO: E-STOP CODE
                 case 's':
                     cmd_vel_msg = stop_msg;
                     break;
                 case 'e':
+                    cmd_vel_msg = stop_msg;
                     stop=true;
                     break;
                 default:
