@@ -45,6 +45,12 @@ void init(ros::NodeHandle nh)
 
 }
 
+/**
+ * Localize the robot using the april tags seen by the robot
+ *
+ * @param  listener [description]
+ * @return          [description]
+ */
 bool AprilTagLocalize(tf::TransformListener &listener)
 {
   for (int i = 0; i < landmark_frames.size(); i++)
@@ -122,7 +128,7 @@ bool AprilTagLocalize(tf::TransformListener &listener)
           newRobotPose.header.stamp = tag_to_base_transform.stamp_;
 
           // create the covariance array (the values are based on what rviz sends)
-          // TODO: change based on confidence (distance to tag?)
+          // TODO: change based on confidence (distance to tag, speed of turning, etc)
           // row order covariance.... first row (0-5) = covariance from x, (6-12) = cov. from y, etc.
           // in this order: (x, y, z, rotation about X axis, rotation about Y axis, rotation about Z axis)
           boost::array<float, 36> covariance = {
@@ -142,6 +148,10 @@ bool AprilTagLocalize(tf::TransformListener &listener)
           poseStamped.header.stamp = ros::Time::now();
           poseStamped.pose = poseWithCovariance.pose;
 
+          // TODO: add code to check if the AMCL current pose is very different than the predicted one.
+          // (ex: AMCL current pose differs more than 10 cm?)
+          // if it is within a threshold don't update. Let AMCL keep working its magic until we are fairly
+          // sure it's lost.
           ROS_INFO("PUBLISHING NEW POSE ESTIMATE!");
           new_pose_pub.publish(poseStamped);
           new_initial_pose_pub.publish(newRobotPose);
