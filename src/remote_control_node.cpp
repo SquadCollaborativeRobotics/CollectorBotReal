@@ -82,7 +82,7 @@ int main (int argc, char ** argv)
         setupTerminal();
         c=getch();
 
-        double angMult = 0.4;
+        double angMult = 1.0;
         double linMult = 1.0;
 
         if (c == ESCAPE_KEY && getch() == LEFT_BRACKET_KEY){
