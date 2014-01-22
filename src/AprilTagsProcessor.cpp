@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
+#include <geometry_msgs/Twist.h>
 #include <std_msgs/Float64.h>
 #include <global_planner/GarbagePosition.h>
 
@@ -21,16 +22,19 @@ bool last_pose_update_time_exists = false;
 ros::Time first_seen_tag;
 bool first_seen_tag_exists = false;
 
-ros::Duration localization_delay(30.0);
-ros::Duration tag_delay(1.5);
-ros::Duration tag_timeout(5.0);
-
 // Publisher that sends out an april tag that is a possible goal node?
 ros::Publisher tags_pub;
 // Publisher that publishes a pose for visualization purposes to the "/new_pose"
 ros::Publisher new_pose_pub;
 // Publisher that reinitializes the pose of the robot (relocalizes)
 ros::Publisher new_initial_pose_pub;
+
+#ifndef TEST_TAGS_STOP
+#define TEST_TAGS_STOP
+ros::Publisher cmd_vel_pub;
+
+geometry_msgs::Twist cmd_vel_msg;
+#endif
 
 void init(ros::NodeHandle nh)
 {
@@ -43,13 +47,19 @@ void init(ros::NodeHandle nh)
   new_pose_pub = nh.advertise<geometry_msgs::PoseStamped>("/new_pose", 100);
   new_initial_pose_pub = nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("initialpose", 100);
 
+  #ifdef TEST_TAGS_STOP
+  cmd_vel_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 100);
+  cmd_vel_msg.linear.x = 0;
+  cmd_vel_msg.linear.y = 0;
+  cmd_vel_msg.linear.z = 0;
+  cmd_vel_msg.angular.x = 0;
+  cmd_vel_msg.angular.y = 0;
+  cmd_vel_msg.angular.z = 0;
+  #endif
 }
 
 /**
  * Localize the robot using the april tags seen by the robot
- *
- * @param  listener [description]
- * @return          [description]
  */
 bool AprilTagLocalize(tf::TransformListener &listener)
 {
@@ -157,6 +167,10 @@ bool AprilTagLocalize(tf::TransformListener &listener)
           new_initial_pose_pub.publish(newRobotPose);
 
           last_pose_update_time = ros::Time::now();
+          #ifdef TEST_TAGS_STOP
+          //Stop the robot because it should be now localized. verify through inspection!
+          cmd_vel_pub.publish(cmd_vel_msg);
+          #endif
         } //if time
       } //if cantransform
     } //try
