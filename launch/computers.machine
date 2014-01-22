@@ -10,8 +10,9 @@
 
         To specify which computer to run, add  'machine="machine_name"' to the node
         ex: <node pkg="amcl" type="amcl" name="amcl" machine="sam"> -->
-  <machine name="shawn" address="shawn" ros-root="$(env ROS_ROOT)" ros-package-path="$(env ROS_PACKAGE_PATH)"/>
-  <machine name="sam" address="sameer" ros-root="$(env ROS_ROOT)" ros-package-path="$(env ROS_PACKAGE_PATH)" />
-  <machine name="alex" address="alex" ros-root="$(env ROS_ROOT)" ros-package-path="$(env ROS_PACKAGE_PATH)" />
-  <machine name="aaron" address="aaron" ros-root="$(env ROS_ROOT)" ros-package-path="$(env ROS_PACKAGE_PATH)" />
+
+  <machine name="shawn" address="shawn"/>
+  <machine name="sam" address="sameer" />
+  <machine name="alex" address="alex" />
+  <machine name="aaron" address="aaron" />
 </launch>
