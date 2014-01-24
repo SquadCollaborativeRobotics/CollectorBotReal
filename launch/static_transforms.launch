@@ -1,5 +1,10 @@
 <launch>
-  <node pkg="tf" type="static_transform_publisher" name="april_tag_landmark_3" args="2.5 -0.65 0.4 0 0 0 map landmark_3 1000" />
-  <node pkg="tf" type="static_transform_publisher" name="april_tag_landmark_5" args="-2.5 0.67 0.4 3.14159265 0 0 map landmark_5 1000" />
+  <node pkg="tf" type="static_transform_publisher" name="april_tag_landmark_3" args="2.5 -0.65 0.4 0 0 0 map landmark_3 3000" />
+  <node pkg="tf" type="static_transform_publisher" name="april_tag_landmark_5" args="-2.5 0.67 0.4 3.14159265 0 0 map landmark_5 3000" />
+  <!--
+  <node pkg="tf" type="static_transform_publisher" name="april_tag_landmark_8" args="1 0 0 0 0 0 map landmark_8 3000" />
+  -->
+  <!--
   <node pkg="tf" type="static_transform_publisher" name="camera_link_publisher" args="0 0 0.0762 0 0 0 base_link camera_link 1000" />
+  -->
 </launch>

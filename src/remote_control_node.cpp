@@ -77,13 +77,11 @@ int main (int argc, char ** argv)
 
     while(nh.ok() && stop == false)
     {
-        ros::spinOnce();
-
         setupTerminal();
         c=getch();
 
-        double angMult = 1.0;
-        double linMult = 1.0;
+        double angMult = 0.10;
+        double linMult = 0.10;
 
         if (c == ESCAPE_KEY && getch() == LEFT_BRACKET_KEY){
             c = getch();
@@ -129,6 +127,7 @@ int main (int argc, char ** argv)
         resetTerminal();
 
         cmd_vel_pub.publish(cmd_vel_msg);
+        ros::spinOnce();
 
     } while (stop == false);
 

@@ -62,7 +62,7 @@ int main(int argc, char** argv){
   // Publishers
   ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("odom", 1);
 
-  // Transform Broadcasters
+    // Transform Broadcasters
   tf::TransformBroadcaster odom_broadcaster;
 
   // Initialize variables for loop
