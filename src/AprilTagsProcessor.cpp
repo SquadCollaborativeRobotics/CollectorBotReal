@@ -42,6 +42,23 @@ void cmdVelCallback(const geometry_msgs::Twist::ConstPtr& msg){
   curr_cmd_vel = *msg;
 }
 
+void PrintTransform(tf::StampedTransform& transform)
+{
+  ROS_INFO_STREAM("Time: "<<transform.stamp_<<" | Parent: "<<transform.frame_id_<<" | Child?: "<<transform.child_frame_id_<<"\nTransform:");
+  tf::Matrix3x3 mat = transform.getBasis();
+  for (int i=0 ; i<3; i++)
+  {
+    std::cout << "[";
+    for (int j=0; j<3; j++)
+    {
+      std::cout<<mat[i][j]<<" ";
+    }
+    std::cout << transform.getOrigin()[i] << "]" << std::endl;
+  }
+  std::cout << "]";
+}
+
+
 void init(ros::NodeHandle nh)
 {
   landmark_frames.push_back(std::string("/landmark_3"));
@@ -89,50 +106,51 @@ bool AprilTagLocalize(tf::TransformListener &listener)
         // ROS_INFO("Could update %d %d", first_seen_tag_exists, last_pose_update_time_exists)
 
         //The transform from the global map to the landmark
-        tf::StampedTransform map_landmark_transform;
-        //The transformation from tag to base
-        tf::StampedTransform tag_to_base_transform;
+        tf::StampedTransform map_to_landmark_transform;
+        //The transformation from tag to camera rgb frame
+        tf::StampedTransform tag_to_camera_rgb_transform;
+        //The transformation from camera_rgb to camera frame
+        tf::StampedTransform camera_rgb_to_camera_link_transform;
+        // transform from camera to base_link. first we have to go from landmark to camera, then to
+        // base_link
+        tf::StampedTransform camera_to_base_link_transform;
 
         ros::Time now = ros::Time::now();
-        // transform from april tag to base link at the time the camera image was taken
-        listener.lookupTransform(april_frames[i], "/base_link",
-          ros::Time(0), tag_to_base_transform);
-
-        //ROS_INFO_STREAM("Time of tag transform: "<<tag_to_base_transform.stamp_);
-
-        // transform from april tag to base link at the time the camera image was taken
+        // transform from the global map coordinates to the landmark
         listener.lookupTransform("/map", landmark_frames[i],
-          ros::Time(0), map_landmark_transform);
+          ros::Time(0), map_to_landmark_transform);
+        //PrintTransform(map_to_landmark_transform);
+        // transform from april tag to the camera optical frame
+        listener.lookupTransform(april_frames[i], "/camera_rgb_frame",
+          ros::Time(0), tag_to_camera_rgb_transform);
+        //PrintTransform(tag_to_camera_rgb_transform);
+        // transform from april tag to the camera optical frame
+        listener.lookupTransform("/camera_rgb_frame", "/camera_link",
+          ros::Time(0), camera_rgb_to_camera_link_transform);
+        //PrintTransform(camera_rgb_to_camera_link_transform);
+        // transform from camera to base link
+        listener.lookupTransform("/camera_link", "/base_link",
+          ros::Time(0), camera_to_base_link_transform);
+        //PrintTransform(camera_to_base_link_transform);
 
         // If tiem when transform was generated was less than 0.5 seconds ago.
-        if (true || ros::Time::now() - tag_to_base_transform.stamp_ < ros::Duration(0.5))
+        if (ros::Time::now() - camera_rgb_to_camera_link_transform.stamp_ < ros::Duration(4))
         {
-          tf::Vector3 lm_vec = map_landmark_transform.getOrigin();
-          tf::Vector3 april_vec = tag_to_base_transform.getOrigin();
-          tf::Matrix3x3 rot_vec = map_landmark_transform.getBasis();
-
-/*
-          for (int i=0; i<9; i++)
-            ROS_INFO_STREAM(rot_vec[9]);
-*/
-          //Transform from map to robot!
+          //Transform from landmark to camera
           tf::Transform new_pose_tf;
-          new_pose_tf.setOrigin(lm_vec + (april_vec * rot_vec));
 
-          double yawMap = getYaw(map_landmark_transform.getRotation());
-          double yawTag = getYaw(tag_to_base_transform.getRotation());
+          new_pose_tf = map_to_landmark_transform * tag_to_camera_rgb_transform * camera_rgb_to_camera_link_transform * camera_to_base_link_transform;
 
-          new_pose_tf.setRotation(tf::createQuaternionFromYaw(yawMap + yawTag));
+//          new_pose_tf.setOrigin( new_pose_tf.getOrigin() + (camera_base_vec * );
 
-/*
           // Find the distance the bot has moved while the camera image was processing
           // This will be added on after we figure out where the robot was at the time
           // of the image being taken
           tf::StampedTransform distance_moved_since_camera_image_taken;
 
           
-          ros::Time past = tag_to_base_transform.stamp_;
-          ROS_INFO_STREAM(tag_to_base_transform.stamp_);
+          ros::Time past = camera_rgb_to_camera_link_transform.stamp_;
+          ROS_INFO_STREAM(camera_rgb_to_camera_link_transform.stamp_);
           listener.waitForTransform("/base_link", now,
                                     "/base_link", past,
                                     "map", ros::Duration(0.5));
@@ -152,10 +170,9 @@ bool AprilTagLocalize(tf::TransformListener &listener)
           if (distance_moved_since_camera_image_taken.getOrigin()[0] < 1.0 && distance_moved_since_camera_image_taken.getOrigin()[1] < 1.0)
           {
             //update the new pose with the distance moved since image taken
-            new_pose_tf.setOrigin(new_pose_tf.getOrigin() + distance_moved_since_camera_image_taken.getOrigin() * rot_vec);
-            new_pose_tf.setRotation(new_pose_tf.getRotation() + tf::createQuaternionFromYaw(getYaw(distance_moved_since_camera_image_taken.getRotation())));
+            new_pose_tf = new_pose_tf * distance_moved_since_camera_image_taken;
           }
-*/
+
           // Convert to a geometry message, which AMCL accepts
           geometry_msgs::Transform msg_tf;
           tf::transformTFToMsg(new_pose_tf, msg_tf);
@@ -173,30 +190,30 @@ bool AprilTagLocalize(tf::TransformListener &listener)
           // Create a "stamped" message
           geometry_msgs::PoseWithCovarianceStamped newRobotPose;
           newRobotPose.header.frame_id = "map";
-          newRobotPose.header.stamp = tag_to_base_transform.stamp_;
+          newRobotPose.header.stamp = camera_rgb_to_camera_link_transform.stamp_;
 
           // create the covariance array (the values are based on what rviz sends)
           // TODO: change based on confidence (distance to tag, speed of turning, etc)
           // row order covariance.... first row (0-5) = covariance from x, (6-12) = cov. from y, etc.
           // in this order: (x, y, z, rotation about X axis, rotation about Y axis, rotation about Z axis)
           boost::array<float, 36> covariance = {
-            0.05, 0.0, 0.0, 0.0, 0.0, 0.0, // there is some variance in x due to moving in x
-            0.0, 0.05,0.0, 0.0, 0.0, 0.0,  // there is some variance in y due to moving in y
+            0.03, 0.0, 0.0, 0.0, 0.0, 0.0, // there is some variance in x due to moving in x
+            0.0, 0.03,0.0, 0.0, 0.0, 0.0,  // there is some variance in y due to moving in y
             0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  // No z motion occurs... no variance
             0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  // no x rotation occurs
             0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  // no y rotation ccurs
-            0.0, 0.0, 0.0, 0.0, 0.0, 0.06  // z rotation is fairly uncertain???
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.05  // z rotation is fairly uncertain???
           };
-          boost::array<float, 36> nocovariance = {
-            0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  // there is some variance in x due to moving in x
-            0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  // there is some variance in y due to moving in y
-            0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  // No z motion occurs... no variance
-            0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  // no x rotation occurs
-            0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  // no y rotation ccurs
-            0.0, 0.0, 0.0, 0.0, 0.0, 0.0   // z rotation is fairly uncertain???
-          };
+          // boost::array<float, 36> nocovariance = {
+          //   0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  // there is some variance in x due to moving in x
+          //   0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  // there is some variance in y due to moving in y
+          //   0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  // No z motion occurs... no variance
+          //   0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  // no x rotation occurs
+          //   0.0, 0.0, 0.0, 0.0, 0.0, 0.0,  // no y rotation ccurs
+          //   0.0, 0.0, 0.0, 0.0, 0.0, 0.0   // z rotation is fairly uncertain???
+          // };
 
-          poseWithCovariance.covariance = nocovariance;
+          poseWithCovariance.covariance = covariance;
           newRobotPose.pose = poseWithCovariance;
 
           geometry_msgs::PoseStamped poseStamped;
@@ -208,15 +225,15 @@ bool AprilTagLocalize(tf::TransformListener &listener)
           // (ex: AMCL current pose differs more than 10 cm?)
           // if it is within a threshold don't update. Let AMCL keep working its magic until we are fairly
           // sure it's lost.
-          //ROS_INFO("PUBLISHING NEW POSE ESTIMATE!");
+          // ROS_INFO("PUBLISHING NEW POSE ESTIMATE!");
           new_pose_pub.publish(poseStamped);
           new_initial_pose_pub.publish(newRobotPose);
 
           last_pose_update_time = now;
-          #ifdef TEST_TAGS_STOP
-          //Stop the robot because it should be now localized. verify through inspection!
-          cmd_vel_pub.publish(cmd_vel_test_msg);
-          #endif
+          // #ifdef TEST_TAGS_STOP
+          // //Stop the robot because it should be now localized. verify through inspection!
+          // cmd_vel_pub.publish(cmd_vel_test_msg);
+          // #endif
           //exit(1);
         } //if time
       } //if cantransform
