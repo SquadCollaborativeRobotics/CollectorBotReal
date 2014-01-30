@@ -70,8 +70,6 @@ int main(int argc, char** argv){
   ros::Time current_time = ros::Time::now();
   ros::Time last_time = ros::Time::now();
 
-  ros::Time lastPrintedTime = ros::Time::now();
-
   while(n.ok()){
     // Set current time
     current_time = ros::Time::now();
@@ -96,12 +94,7 @@ int main(int argc, char** argv){
     }
     else
     {
-      if (ros::Time::now() - lastPrintedTime > ros::Duration(3.0))
-      {
-        ROS_ERROR("Have not received a wheel speed update in: %lf", (current_time-last_lw_time).toSec());
-        lastPrintedTime = ros::Time::now();
-      }
-
+      ROS_ERROR_THROTTLE(3, "Have not received a wheel speed update in: %lf", (current_time-last_lw_time).toSec());
       vx = vy = vth = 0;
     }
 
