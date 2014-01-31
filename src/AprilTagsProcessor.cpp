@@ -59,38 +59,35 @@ geometry_msgs::Twist cmd_vel_test_msg;
 
 //Current velocity estimate
 ros::Subscriber cmd_vel_sub;
-ros::Subscriber cmd_state_sub;
-ros::Publisher cmd_state_pub;
 geometry_msgs::Twist curr_cmd_vel;
-std_msgs::Int32 curr_state_value;
-std_msgs::Int32 stored_state;
 
-//Variables for controlling the state of the bot in terms of moving while april tag is being read
-enum DetectionState
-{
-  NoTagsSeen = 0,
-  TagInFrame = 1
-};
-
-DetectionState current_detection_state;
+//Variables for helping the accuracy of the robot
 bool needAnotherLook;
 ros::Time timeOfLastLook;
 
+//Variables dealing with the global planner state
+ros::Subscriber cmd_state_sub;
+ros::Publisher cmd_state_pub;
+std_msgs::Int32 curr_state_value;
+std_msgs::Int32 stored_state;
+
+//get amcl_pose
+ros::Subscriber amcl_pose_sub;
+geometry_msgs::PoseWithCovarianceStamped amcl_pose;
 
 void cmdVelCallback(const geometry_msgs::Twist::ConstPtr& msg){
   curr_cmd_vel = *msg;
 }
 
-void commandCallback(const std_msgs::Int32::ConstPtr& msg){
+void amclPoseCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg){
+  amcl_pose.pose = msg->pose;
+  amcl_pose.header = msg->header;
+  ROS_INFO_STREAM_THROTTLE(1,"Got amcl pose");
+}
+
+void currStateCallback(const std_msgs::Int32::ConstPtr& msg){
   curr_state_value.data = msg->data;
   ROS_ERROR_STREAM("Received cmd_state: "<<curr_state_value.data);
-
-  //account for a race condition where the goal is met while we are waiting for a second look at a tag
-  if (curr_state_value.data != 0)
-  {
-    stored_state.data = curr_state_value.data;
-    ROS_INFO_STREAM("Stored state = "<<stored_state.data);
-  }
 }
 
 /**
@@ -113,22 +110,29 @@ void PrintTransform(tf::StampedTransform& transform)
   std::cout << "]";
 }
 
-int stopRobot()
+/**
+ * Communicates with the global planner to stop the robot so the system can 
+ * @return [description]
+ */
+void pauseRobot()
 {
-  stored_state = curr_state_value;
-  int curr_state = curr_state_value.data;
-  ROS_INFO_STREAM("Stopping robot: Last state = "<<stored_state);
+  int ret = curr_state_value;
+  ROS_INFO_STREAM("Stopping robot: Current state = "<<stored_state);
 
   std_msgs::Int32 stop_msg;
-  stop_msg.data = 0;
+  stop_msg.data = 99; // pause state = 99
   cmd_state_pub.publish(stop_msg);
-  return curr_state;
+  ros::spinOnce();
+  return ret;
 }
 
-int resumePlanner()
+int resumeRobot()
 {
-  ROS_INFO_STREAM("Resuming state to: "<<stored_state.data);
-  cmd_state_pub.publish(stored_state);
+  ROS_INFO_STREAM("Resuming Robot");
+  std_msgs::Int32 resume_msg;
+  resume_msg.data = 100; //resume state = 100
+  cmd_state_pub.publish(resume_msg);
+  ros::spinOnce();
   return stored_state.data;
 }
 
@@ -147,10 +151,11 @@ void init(ros::NodeHandle nh)
   tags_pub = nh.advertise<global_planner::GarbagePosition>("/garbageposition", 100);
   new_pose_pub = nh.advertise<geometry_msgs::PoseStamped>("/new_pose", 100);
   new_initial_pose_pub = nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("initialpose", 100);
-  cmd_state_pub = nh.advertise<std_msgs::Int32>("/cmd_state", 100);
+  cmd_state_pub = nh.advertise<std_msgs::Int32>("/curr_cmd_state", 100);
 
   cmd_vel_sub = nh.subscribe("/cmd_vel", 10, cmdVelCallback);
-  cmd_state_sub = nh.subscribe("cmd_state", 10, commandCallback);
+  cmd_state_sub = nh.subscribe("curr_cmd_state", 10, currStateCallback);
+  amcl_pose_sub = nh.subscribe("amcl_pose", 10, amclPoseCallback);
 
   #ifdef TEST_TAGS_STOP
   cmd_vel_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 100);
@@ -162,7 +167,6 @@ void init(ros::NodeHandle nh)
   cmd_vel_test_msg.angular.z = 0;
   #endif
 
-  current_detection_state = NoTagsSeen;
   needAnotherLook = true;
   timeOfLastLook = ros::Time(0);
 }
@@ -175,6 +179,27 @@ void init(ros::NodeHandle nh)
 double GetDistance(tf::StampedTransform &tf)
 {
   return sqrt(tf.getOrigin()[0]*tf.getOrigin()[0] + tf.getOrigin()[1]*tf.getOrigin()[1]);
+}
+
+/**
+ * Compares 2 poses and returns the abs(distance) between them (taking into account covariance...)
+ * @param  pose1 [description]
+ * @param  pose2 [description]
+ * @return true if a significant difference between the 2 poses      
+ */
+bool PosesDiffer(geometry_msgs::PoseWithCovariance& poseWithCovariance1, geometry_msgs::PoseWithCovariance& poseWithCovariance2)
+{
+  geometry_msgs::Pose pose1 = poseWithCovariance1.pose;
+  geometry_msgs::Pose pose2 = poseWithCovariance2.pose;
+
+  double diffX = abs(pose1.position.x - pose2.position.x);
+  double diffY = abs(pose1.position.x - pose2.position.x);
+  double diffTheta = abs(pose1.orientation.z - pose2.orientation.z);
+
+  static const double considerableDistance = 0.15; //15 cm difference is too much
+  if (sqrt(diffX*diffX + diffY*diffY) > considerableDistance)
+    return true;
+  static const double considerableDifferenceTheta = 0.26; //15 degrees is too much
 }
 
 /**
@@ -244,6 +269,7 @@ bool AprilTagLocalize(tf::TransformListener &listener)
           }
           else
           {
+            ROS_INFO_STREAM_THROTTLE(1,"Looking again now that we're stopped and primed to receive");
             //If we get stuck in a position where we can't see any tags and have no motion, we should just continue on with the planner
             if (now - timeOfLastLook > ros::Duration(5))
             {
@@ -253,18 +279,19 @@ bool AprilTagLocalize(tf::TransformListener &listener)
               continue;
             }
 
+            //Check to make sure we are stopped...
+            bool stillMoving = false;
             if (curr_cmd_vel.linear.x > 0.02 || curr_cmd_vel.linear.y > 0.02
               || curr_cmd_vel.angular.z > 0.025)
             {
               //needAnotherLook = true;
-              ROS_WARN_STREAM_THROTTLE(1,"Going too fast for accurate localization");
-              continue;
+              ROS_WARN_STREAM("Going too fast for accurate localization");
+              stillMoving = true;
             }
             
-            ROS_INFO_STREAM_THROTTLE(1,"Looking again now that we're stopped and primed to receive");
             // Now that we're stopped, make sure the robot has had time to settle
             // and the camera has a fresh, clear image
-            if (tag_to_camera_rgb_transform.stamp_ - timeOfLastLook  > ros::Duration(1.0))
+            if ((tag_to_camera_rgb_transform.stamp_ - timeOfLastLook  > ros::Duration(1.5)) && !stillMoving)
             {
               ROS_INFO_STREAM("Performing pose update");
               //Transform from landmark to camera
@@ -309,11 +336,6 @@ bool AprilTagLocalize(tf::TransformListener &listener)
               ROS_INFO("New Robot Position:\nx = %lf, y = %lf, z = %lf",
               poseWithCovariance.pose.position.x, poseWithCovariance.pose.position.y, poseWithCovariance.pose.position.z);
 
-              // Create a "stamped" message
-              geometry_msgs::PoseWithCovarianceStamped newRobotPose;
-              newRobotPose.header.frame_id = "map";
-              newRobotPose.header.stamp = tag_to_camera_rgb_transform.stamp_;
-
               // create the covariance array (the values are based on what rviz sends)
               // TODO: change based on confidence (distance to tag, speed of turning, etc)
               // row order covariance.... first row (0-5) = covariance from x, (6-12) = cov. from y, etc.
@@ -328,31 +350,42 @@ bool AprilTagLocalize(tf::TransformListener &listener)
               };
 
               // finish creating message to send to AMCL
+
+              // Create a "stamped" message
+              geometry_msgs::PoseWithCovarianceStamped newRobotPose;
+              newRobotPose.header.frame_id = "map";
+              newRobotPose.header.stamp = tag_to_camera_rgb_transform.stamp_;
+
               poseWithCovariance.covariance = covariance;
               newRobotPose.pose = poseWithCovariance;
 
+              //Use for display purposes...
               geometry_msgs::PoseStamped poseStamped;
               poseStamped.header.frame_id = "map";
               poseStamped.header.stamp = now;
               poseStamped.pose = poseWithCovariance.pose;
 
-              // TODO: add code to check if the AMCL current pose is very different than the predicted one.
-              // (ex: AMCL current pose differs more than 10 cm?)
+              // check if the AMCL current pose is very different than the predicted one.
+              // (i.e.: AMCL current pose differs more than threshold)
               // if it is within a threshold don't update. Let AMCL keep working its magic until we are fairly
               // sure it's lost.
+              
+              if (PosesDiffer(amcl_pose.pose, newRobotPose.pose))
+              {
+                new_pose_pub.publish(poseStamped);
+                new_initial_pose_pub.publish(newRobotPose);
 
-              new_pose_pub.publish(poseStamped);
-              new_initial_pose_pub.publish(newRobotPose);
+                //wait for amcl to reinitialize
+                ROS_INFO_STREAM("Waiting for AMCL to reinitialize");
+
+                sleep(1.5);
+              }
 
               last_pose_update_time = now;
 
               needAnotherLook = true; // reset the trigger to require looking again next time
               ros::spinOnce(); //send the pose
 
-              //wait for amcl to reinitialize
-              ROS_INFO_STREAM("Waiting for AMCL to reinitialize");
-
-              sleep(1);
               ROS_INFO("Resuming planner");
               resumePlanner();
               return true;

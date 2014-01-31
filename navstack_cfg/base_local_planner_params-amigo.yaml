@@ -9,7 +9,7 @@ TrajectoryPlannerROS:
   min_vel_x: 0.05
   max_vel_x: 0.2
   #max_rotational_vel: 1.74 # rad/sec
-  max_rotational_vel: 0.2 # rad/sec
+  max_rotational_vel: 0.25 # rad/sec
   min_in_place_rotational_vel: 0.05 #The minimum rotational velocity allowed for the base while performing in-place rotations in radians/sec
 
   acc_lim_th: 2.2
@@ -17,7 +17,7 @@ TrajectoryPlannerROS:
   acc_lim_y: 2.0
 
   #goal tolerances
-  yaw_goal_tolerance: 0.25
-  xy_goal_tolerance: 0.25
+  yaw_goal_tolerance: 0.25 #radians ~= 15 degrees
+  xy_goal_tolerance: 0.15 #meters
 
   holonomic_robot: false
