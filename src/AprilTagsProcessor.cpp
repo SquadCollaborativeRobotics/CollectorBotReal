@@ -116,24 +116,21 @@ void PrintTransform(tf::StampedTransform& transform)
  */
 void pauseRobot()
 {
-  int ret = curr_state_value;
-  ROS_INFO_STREAM("Stopping robot: Current state = "<<stored_state);
+  ROS_INFO_STREAM("Stopping robot: Current state = "<<curr_state_value.data);
 
   std_msgs::Int32 stop_msg;
   stop_msg.data = 99; // pause state = 99
   cmd_state_pub.publish(stop_msg);
   ros::spinOnce();
-  return ret;
 }
 
-int resumeRobot()
+void resumeRobot()
 {
   ROS_INFO_STREAM("Resuming Robot");
   std_msgs::Int32 resume_msg;
   resume_msg.data = 100; //resume state = 100
   cmd_state_pub.publish(resume_msg);
   ros::spinOnce();
-  return stored_state.data;
 }
 
 /**
@@ -151,7 +148,7 @@ void init(ros::NodeHandle nh)
   tags_pub = nh.advertise<global_planner::GarbagePosition>("/garbageposition", 100);
   new_pose_pub = nh.advertise<geometry_msgs::PoseStamped>("/new_pose", 100);
   new_initial_pose_pub = nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("initialpose", 100);
-  cmd_state_pub = nh.advertise<std_msgs::Int32>("/curr_cmd_state", 100);
+  cmd_state_pub = nh.advertise<std_msgs::Int32>("/cmd_state", 100);
 
   cmd_vel_sub = nh.subscribe("/cmd_vel", 10, cmdVelCallback);
   cmd_state_sub = nh.subscribe("curr_cmd_state", 10, currStateCallback);
@@ -252,7 +249,7 @@ bool AprilTagLocalize(tf::TransformListener &listener)
         {
           if (GetDistance(tag_to_camera_rgb_transform) > 2.1)
           {
-            ROS_WARN_STREAM_THROTTLE(1,"Distance to tag is too far for accurate localization: "
+            ROS_WARN_STREAM_THROTTLE(3,"Distance to tag is too far for accurate localization: "
               <<GetDistance(tag_to_camera_rgb_transform)<<" m");
             continue;
           }
@@ -262,7 +259,7 @@ bool AprilTagLocalize(tf::TransformListener &listener)
           {
             ROS_INFO("Need another look...");
             timeOfLastLook = tag_to_camera_rgb_transform.stamp_;
-            stopRobot();
+            pauseRobot();
             //We have stopped, let's get a good reading
             needAnotherLook = false;
             return false;
@@ -271,13 +268,13 @@ bool AprilTagLocalize(tf::TransformListener &listener)
           {
             ROS_INFO_STREAM_THROTTLE(1,"Looking again now that we're stopped and primed to receive");
             //If we get stuck in a position where we can't see any tags and have no motion, we should just continue on with the planner
-            if (now - timeOfLastLook > ros::Duration(5))
+            /*if (now - timeOfLastLook > ros::Duration(5))
             {
               ROS_ERROR_STREAM("Got stuck... resuming plan?");
               needAnotherLook=true;
-              resumePlanner();
+              resumeRobot();
               continue;
-            }
+            }*/
 
             //Check to make sure we are stopped...
             bool stillMoving = false;
@@ -285,7 +282,8 @@ bool AprilTagLocalize(tf::TransformListener &listener)
               || curr_cmd_vel.angular.z > 0.025)
             {
               //needAnotherLook = true;
-              ROS_WARN_STREAM("Going too fast for accurate localization");
+              ROS_WARN_STREAM_THROTTLE(1,"Going too fast for accurate localization");
+              ROS_INFO_STREAM(curr_cmd_vel.linear.x<<' '<<curr_cmd_vel.linear.y<<' '<<curr_cmd_vel.angular.z);
               stillMoving = true;
             }
             
@@ -380,6 +378,10 @@ bool AprilTagLocalize(tf::TransformListener &listener)
 
                 sleep(1.5);
               }
+              else
+              {
+                ROS_WARN_STREAM("Poses do not differ enough to need april tag localization");
+              }
 
               last_pose_update_time = now;
 
@@ -387,7 +389,7 @@ bool AprilTagLocalize(tf::TransformListener &listener)
               ros::spinOnce(); //send the pose
 
               ROS_INFO("Resuming planner");
-              resumePlanner();
+              resumeRobot();
               return true;
             }
           }
