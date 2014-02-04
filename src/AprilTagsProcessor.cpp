@@ -8,7 +8,7 @@
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Float64.h>
 #include <std_msgs/Int32.h>
-#include <global_planner/GarbagePosition.h>
+#include <global_planner/GarbageCan.h>
 
 #include <math.h>
 
@@ -17,6 +17,7 @@
 //*****************************************
 std::vector<std::string> landmark_frames;
 std::vector<std::string> april_frames;
+std::vector<std::string> goal_frames;
 
 //*****************************************
 // variables used to control rate of updates
@@ -57,7 +58,7 @@ ros::Publisher cmd_vel_pub;
 geometry_msgs::Twist cmd_vel_test_msg;
 #endif
 
-//Current velocity estimate
+//Current velocity
 ros::Subscriber cmd_vel_sub;
 geometry_msgs::Twist curr_cmd_vel;
 
@@ -144,8 +145,9 @@ void init(ros::NodeHandle nh)
   landmark_frames.push_back(std::string("/landmark_5"));
   april_frames.push_back(std::string("/april_tag[3]"));
   april_frames.push_back(std::string("/april_tag[5]"));
+  goal_frames.push_back(std::string("/april_tag[6]"));
 
-  tags_pub = nh.advertise<global_planner::GarbagePosition>("/garbageposition", 100);
+  tags_pub = nh.advertise<global_planner::GarbageCan>("garbageCan", 100);
   new_pose_pub = nh.advertise<geometry_msgs::PoseStamped>("/new_pose", 100);
   new_initial_pose_pub = nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("initialpose", 100);
   cmd_state_pub = nh.advertise<std_msgs::Int32>("/cmd_state", 100);
@@ -180,9 +182,9 @@ double GetDistance(tf::StampedTransform &tf)
 
 /**
  * Compares 2 poses and returns the abs(distance) between them (taking into account covariance...)
- * @param  pose1 [description]
- * @param  pose2 [description]
- * @return true if a significant difference between the 2 poses      
+ * @param  pose1
+ * @param  pose2
+ * @return true if a significant difference between the 2 poses
  */
 bool PosesDiffer(geometry_msgs::PoseWithCovariance& poseWithCovariance1, geometry_msgs::PoseWithCovariance& poseWithCovariance2)
 {
@@ -193,10 +195,15 @@ bool PosesDiffer(geometry_msgs::PoseWithCovariance& poseWithCovariance1, geometr
   double diffY = abs(pose1.position.x - pose2.position.x);
   double diffTheta = abs(pose1.orientation.z - pose2.orientation.z);
 
+  //Check linear distance
   static const double considerableDistance = 0.15; //15 cm difference is too much
   if (sqrt(diffX*diffX + diffY*diffY) > considerableDistance)
     return true;
+
+  //Check difference in theta
   static const double considerableDifferenceTheta = 0.26; //15 degrees is too much
+  if (diffTheta > considerableDifferenceTheta)
+    return true;
 }
 
 /**
@@ -268,13 +275,12 @@ bool AprilTagLocalize(tf::TransformListener &listener)
           {
             ROS_INFO_STREAM_THROTTLE(1,"Looking again now that we're stopped and primed to receive");
             //If we get stuck in a position where we can't see any tags and have no motion, we should just continue on with the planner
-            /*if (now - timeOfLastLook > ros::Duration(5))
+            if (now - timeOfLastLook > ros::Duration(5))
             {
               ROS_ERROR_STREAM("Got stuck... resuming plan?");
               needAnotherLook=true;
-              resumeRobot();
               continue;
-            }*/
+            }
 
             //Check to make sure we are stopped...
             bool stillMoving = false;
@@ -376,7 +382,7 @@ bool AprilTagLocalize(tf::TransformListener &listener)
                 //wait for amcl to reinitialize
                 ROS_INFO_STREAM("Waiting for AMCL to reinitialize");
 
-                sleep(1.5);
+                sleep(2.0);
               }
               else
               {
@@ -389,6 +395,7 @@ bool AprilTagLocalize(tf::TransformListener &listener)
               ros::spinOnce(); //send the pose
 
               ROS_INFO("Resuming planner");
+              sleep(0.5);
               resumeRobot();
               return true;
             }
@@ -411,16 +418,16 @@ ros::Time last_goal_send_time;
 void PublishGoalPoses(tf::TransformListener& listener)
 {
   // Publish the goal positions on a topic in the map frame
-  for (std::vector<std::string>::iterator it = april_frames.begin(); it != april_frames.end(); ++it)
+  for (std::vector<std::string>::iterator it = goal_frames.begin(); it != goal_frames.end(); ++it)
   {
     if (listener.canTransform ("/map", it->c_str(), ros::Time(0)))
     {
       // Publish at max rate of 1 Hz
       // not tied to ros::rate since want to see most current up to 10Hz
-      if (ros::Time::now() - ros::Duration(1.0) > last_goal_send_time) {
+      if (ros::Time::now() - ros::Duration(5.0) > last_goal_send_time) {
         tf::StampedTransform transform;
         
-        global_planner::GarbagePosition gp;
+        global_planner::GarbageCan can;
         geometry_msgs::PoseStamped ps;
         tf::Quaternion quat;
 
@@ -437,16 +444,21 @@ void PublishGoalPoses(tf::TransformListener& listener)
         ps.pose.position.z = transform.getOrigin().z();
 
         //Set garbage rotation from the transform
-        geometry_msgs::Quaternion q;
-        q.x=quat.x();
-        q.y=quat.y();
-        q.z=quat.z();
-        ps.pose.orientation = q;
+        geometry_msgs::Quaternion quatMsg;
+        quatMsg.x=quat.x();
+        quatMsg.y=quat.y();
+        quatMsg.z=quat.z();
+        ps.pose.orientation = quatMsg;
 
         //Finish creating message & publish
-        gp.pose = ps;
-        tags_pub.publish(gp);
+        can.pose = ps;
+        //TODO: fix
+        can.can_num = 6;
+
+        tags_pub.publish(can);
         last_goal_send_time = ros::Time::now();
+
+        ROS_INFO("Sent goal pose");
       }
     }
   }
