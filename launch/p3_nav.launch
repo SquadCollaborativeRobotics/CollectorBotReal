@@ -2,14 +2,15 @@
 <launch>
   <master auto="start"/>
 
+  <!-- Start Hardware for P3-DX plus things needed for navigation -->
+  <include file="$(find scr_proto)/launch/p3_launch.launch" />
+
   <!-- Run the map server -->
-  <node name="map_server" pkg="map_server" type="map_server" args="$(find scr_proto)/maps/testing127.yaml"/>
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find scr_proto)/maps/hok1.yaml"/>
 
   <!-- - Run AMCL  -->
   <node pkg="amcl" type="amcl" name="amcl" output="screen">
     <!-- Publish scans from best pose at a max of 10 Hz -->
-    <param name="odom_model_type" value="diff"/>
-    <param name="odom_alpha5" value="0.1"/>
     <param name="transform_tolerance" value="0.2" />
     <param name="gui_publish_rate" value="10.0"/>
     <param name="laser_max_beams" value="60"/>
@@ -17,11 +18,13 @@
     <param name="max_particles" value="500"/>
     <param name="kld_err" value="0.05"/>
     <param name="kld_z" value="0.99"/>
-    <param name="odom_alpha1" value="0.2"/>
+    <!-- http://wiki.ros.org/amcl -->
+    <param name="odom_model_type" value="diff"/>
+    <param name="odom_alpha1" value="0.4"/>
     <param name="odom_alpha2" value="0.2"/>
-    <!-- translation std dev, m -->
     <param name="odom_alpha3" value="0.8"/>
-    <param name="odom_alpha4" value="0.2"/>
+    <param name="odom_alpha4" value="0.5"/>
+    <!-- translation std dev, m -->
     <param name="laser_z_hit" value="0.5"/>
     <param name="laser_z_short" value="0.05"/>
     <param name="laser_z_max" value="0.05"/>
@@ -41,15 +44,13 @@
     <param name="recovery_alpha_fast" value="0.0"/>
   </node>
 
+  <!-- Move Base Handles interactions between Nav Stack and Robot Hardware -->
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
     <rosparam file="$(find scr_proto)/navstack_cfg/costmap_common_params-p3.yaml" command="load" ns="global_costmap" />
     <rosparam file="$(find scr_proto)/navstack_cfg/costmap_common_params-p3.yaml" command="load" ns="local_costmap" />
     <rosparam file="$(find scr_proto)/navstack_cfg/local_costmap_params.yaml" command="load" />
     <rosparam file="$(find scr_proto)/navstack_cfg/global_costmap_params.yaml" command="load" />
     <rosparam file="$(find scr_proto)/navstack_cfg/base_local_planner_params-p3.yaml" command="load" />
-  </node>
-
-  <node name="kinect_laser" type="depthimage_to_laserscan" pkg="depthimage_to_laserscan" args="image:=/camera/depth/image_raw">
   </node>
 
 </launch>

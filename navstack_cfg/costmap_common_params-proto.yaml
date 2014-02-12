@@ -9,6 +9,7 @@ footprint: [[0.0619125, 0.1397], [-0.5476875, 0.1397], [-0.5476875, -0.1397], [0
 #robot_radius: ir_of_robot
 inflation_radius: 0.5
 
-observation_sources: laser_scan_sensor
+observation_sources: sonar_sensor kinect_sensor
 
-laser_scan_sensor: {sensor_frame: /camera_depth_frame, data_type: LaserScan, topic: /scan, marking: true, clearing: true}
+sonar_sensor: {sensor_frame: /base_link, data_type: LaserScan, topic: /scan, marking: true, clearing: true}
+kinect_sensor: {sensor_frame: /camera_depth_frame, data_type: LaserScan, topic: /kinectscan, marking: true, clearing: true}

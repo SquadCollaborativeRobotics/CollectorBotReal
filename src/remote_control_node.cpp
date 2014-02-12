@@ -50,15 +50,15 @@ int main (int argc, char ** argv)
 
     ros::NodeHandle nh;
 
-
     ROS_INFO("Starting Remote Control Node");
 
     ROS_INFO_STREAM(std::string("Remote Control the robot...\n\n\tUse the arrow keys to move the bot\n\t")<<
         std::string("Type h for help\n\tType 't' to change default cmd_vel topic (defaults to \\cmd_vel")<<
             std::string("\n\ttype 's' or 'e' or to stop (e-stop)"));
 
+    std::string pub_topic_name = "/RosAria/cmd_vel";
     // Publishers
-    ros::Publisher cmd_vel_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
+    ros::Publisher cmd_vel_pub = nh.advertise<geometry_msgs::Twist>(pub_topic_name.c_str(), 1);
     geometry_msgs::Twist stop_msg;
 
     stop_msg.linear.x = 0;

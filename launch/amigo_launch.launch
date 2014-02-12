@@ -20,7 +20,7 @@
   <include file="$(find scr_proto)/launch/static_transforms.launch" />
 
   <!-- Adjust the location of the kinect relative to the baselink here -->
-  <node pkg="tf" type="static_transform_publisher" name="camera_link_publisher" args="0.11 0 0.08 0 0 0 base_link camera_link 1000" />
+  <node pkg="tf" type="static_transform_publisher" name="amigo_camera_link_publisher" args="0.11 0 0.08 0 0 0 base_link camera_link 1000" />
 
   <!-- Launches the Amigobot OS (ROSARIA) -->
   <node name="amigobot_node" pkg="rosaria" type="RosAria">
