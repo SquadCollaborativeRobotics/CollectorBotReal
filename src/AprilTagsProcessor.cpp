@@ -448,6 +448,7 @@ void PublishGoalPoses(tf::TransformListener& listener)
         quatMsg.x=quat.x();
         quatMsg.y=quat.y();
         quatMsg.z=quat.z();
+        quatMsg.w=quat.w();
         ps.pose.orientation = quatMsg;
 
         //Finish creating message & publish
