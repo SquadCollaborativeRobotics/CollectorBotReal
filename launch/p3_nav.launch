@@ -3,7 +3,7 @@
   <master auto="start"/>
 
   <!-- Start Hardware for AmigoBot plus things needed for navigation -->
-  <include file="$(find scr_proto)/launch/amigo_launch.launch" />
+  <include file="$(find scr_proto)/launch/p3_launch.launch" />
 
   <!-- Run the map server -->
   <node name="map_server" pkg="map_server" type="map_server" args="$(find scr_proto)/maps/hok1.yaml"/>

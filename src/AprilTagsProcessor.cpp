@@ -24,11 +24,6 @@ std::vector<std::string> goal_frames;
 //*****************************************
 // Hard Coded Hack, probably need a data structure to hold
 ros::Time last_pose_update_time;
-// Signifies that that time variable has not yet been set
-bool last_pose_update_time_exists = false;
-
-ros::Time first_seen_tag;
-bool first_seen_tag_exists = false;
 
 //*****************************************
 // Ros Publishers
