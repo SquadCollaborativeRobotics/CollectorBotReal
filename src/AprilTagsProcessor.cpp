@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
-#include <geometry_msgs/Twist.h>
+#include <nav_msgs/Odometry.h>
 #include <std_msgs/Float64.h>
 #include <std_msgs/Int32.h>
 #include <global_planner/GarbageCan.h>
@@ -49,18 +49,9 @@ tf::StampedTransform camera_rgb_to_camera_link_transform;
 // base_link
 tf::StampedTransform camera_to_base_link_transform;
 
-
-//*****************************************
-// Used for testing to tell the robot to stop once a tag is seen
-//*****************************************
-#ifdef TEST_TAGS_STOP
-ros::Publisher cmd_vel_pub;
-geometry_msgs::Twist cmd_vel_test_msg;
-#endif
-
 //Current velocity
-ros::Subscriber cmd_vel_sub;
-geometry_msgs::Twist curr_cmd_vel;
+ros::Subscriber odom_sub;
+nav_msgs::Odometry curr_odom;
 
 //Variables for helping the accuracy of the robot
 bool needAnotherLook;
@@ -76,8 +67,8 @@ std_msgs::Int32 stored_state;
 ros::Subscriber amcl_pose_sub;
 geometry_msgs::PoseWithCovarianceStamped amcl_pose;
 
-void cmdVelCallback(const geometry_msgs::Twist::ConstPtr& msg){
-  curr_cmd_vel = *msg;
+void odomCallback(const nav_msgs::Odometry::ConstPtr& msg){
+  curr_odom = *msg;
 }
 
 void amclPoseCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg){
@@ -152,19 +143,9 @@ void init(ros::NodeHandle nh)
   new_initial_pose_pub = nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("initialpose", 100);
   cmd_state_pub = nh.advertise<std_msgs::Int32>("/cmd_state", 100);
 
-  cmd_vel_sub = nh.subscribe("/cmd_vel", 10, cmdVelCallback);
+  odom_sub = nh.subscribe("odom", 10, odomCallback);
   cmd_state_sub = nh.subscribe("curr_cmd_state", 10, currStateCallback);
   amcl_pose_sub = nh.subscribe("amcl_pose", 10, amclPoseCallback);
-
-  #ifdef TEST_TAGS_STOP
-  cmd_vel_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 100);
-  cmd_vel_test_msg.linear.x = 0;
-  cmd_vel_test_msg.linear.y = 0;
-  cmd_vel_test_msg.linear.z = 0;
-  cmd_vel_test_msg.angular.x = 0;
-  cmd_vel_test_msg.angular.y = 0;
-  cmd_vel_test_msg.angular.z = 0;
-  #endif
 
   needAnotherLook = true;
   timeOfLastLook = ros::Time(0);
@@ -214,7 +195,7 @@ bool PosesDiffer(geometry_msgs::PoseWithCovariance& poseWithCovariance1, geometr
  */
 bool AprilTagLocalize(tf::TransformListener &listener)
 {
-  static const double minTimeBetweenUpdates = 9.0;
+  static const double minTimeBetweenUpdates = 10.5;
   if (ros::Time::now() - last_pose_update_time < ros::Duration(minTimeBetweenUpdates))
   {
     ROS_INFO_STREAM_THROTTLE(1,"Not checking... not going to update quicker than once every "<<minTimeBetweenUpdates<<" seconds");
@@ -254,7 +235,7 @@ bool AprilTagLocalize(tf::TransformListener &listener)
         // If time when tag was seen was less than 1 second ago.
         if (now - tag_to_camera_rgb_transform.stamp_ < ros::Duration(1))
         {
-          if (GetDistance(tag_to_camera_rgb_transform) > 2.1)
+          if (GetDistance(tag_to_camera_rgb_transform) > 2.2)
           {
             ROS_WARN_STREAM_THROTTLE(3,"Distance to tag is too far for accurate localization: "
               <<GetDistance(tag_to_camera_rgb_transform)<<" m");
@@ -284,12 +265,12 @@ bool AprilTagLocalize(tf::TransformListener &listener)
 
             //Check to make sure we are stopped...
             bool stillMoving = false;
-            if (curr_cmd_vel.linear.x > 0.02 || curr_cmd_vel.linear.y > 0.02
-              || curr_cmd_vel.angular.z > 0.025)
+            if (curr_odom.twist.twist.linear.x > 0.01 || curr_odom.twist.twist.linear.y > 0.01
+              || curr_odom.twist.twist.angular.z > 0.01)
             {
               //needAnotherLook = true;
               ROS_WARN_STREAM_THROTTLE(1,"Going too fast for accurate localization");
-              ROS_INFO_STREAM(curr_cmd_vel.linear.x<<' '<<curr_cmd_vel.linear.y<<' '<<curr_cmd_vel.angular.z);
+              ROS_INFO_STREAM(curr_odom.twist.twist.linear.x<<' '<<curr_odom.twist.twist.linear.y<<' '<<curr_odom.twist.twist.angular.z);
               stillMoving = true;
             }
             
@@ -311,12 +292,12 @@ bool AprilTagLocalize(tf::TransformListener &listener)
               // past is used for determining the time at which to go back for calculating distance traveled since camera image was taken
               ros::Time past = tag_to_camera_rgb_transform.stamp_;
 
-              listener.waitForTransform("/base_link", now,
-                                        "/base_link", past,
+              listener.waitForTransform("base_link", now,
+                                        "base_link", past,
                                         "map", ros::Duration(0.5));
-              listener.lookupTransform("/base_link", now,
-                                      "/base_link", past,
-                                      "/map", distance_moved_since_camera_image_taken);
+              listener.lookupTransform("base_link", now,
+                                      "base_link", past,
+                                      "map", distance_moved_since_camera_image_taken);
 
               PrintTransform(distance_moved_since_camera_image_taken);
 
@@ -453,13 +434,13 @@ void PublishGoalPoses(tf::TransformListener& listener)
 
         //Finish creating message & publish
         can.pose = ps;
-        //TODO: fix
+        //TODO: make more correct
         can.can_num = 6;
 
         tags_pub.publish(can);
         last_goal_send_time = ros::Time::now();
 
-        ROS_INFO("Sent goal pose");
+        ROS_ERROR("Sent goal pose");
       }
     }
   }
