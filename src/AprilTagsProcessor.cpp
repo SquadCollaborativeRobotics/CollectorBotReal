@@ -273,7 +273,7 @@ bool AprilTagLocalize(tf::TransformListener &listener)
               ROS_INFO_STREAM(curr_odom.twist.twist.linear.x<<' '<<curr_odom.twist.twist.linear.y<<' '<<curr_odom.twist.twist.angular.z);
               stillMoving = true;
             }
-            
+
             // Now that we're stopped, make sure the robot has had time to settle
             // and the camera has a fresh, clear image
             if ((tag_to_camera_rgb_transform.stamp_ - timeOfLastLook  > ros::Duration(1.5)) && !stillMoving)
