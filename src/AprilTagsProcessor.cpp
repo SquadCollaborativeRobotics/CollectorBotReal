@@ -8,7 +8,7 @@
 #include <nav_msgs/Odometry.h>
 #include <std_msgs/Float64.h>
 #include <std_msgs/Int32.h>
-#include <global_planner/GarbageCan.h>
+#include <global_planner/GoalMsg.h>
 
 #include <math.h>
 
@@ -98,7 +98,7 @@ void PrintTransform(tf::StampedTransform& transform)
 }
 
 /**
- * Communicates with the global planner to stop the robot so the system can 
+ * Communicates with the global planner to stop the robot so the system can
  * @return [description]
  */
 void pauseRobot()
@@ -133,7 +133,7 @@ void init(ros::NodeHandle nh)
   april_frames.push_back(std::string("/april_tag[5]"));
   goal_frames.push_back(std::string("/april_tag[6]"));
 
-  tags_pub = nh.advertise<global_planner::GarbageCan>("garbageCan", 100);
+  tags_pub = nh.advertise<global_planner::GoalMsg>("garbageCan", 100);
   new_pose_pub = nh.advertise<geometry_msgs::PoseStamped>("/new_pose", 100);
   new_initial_pose_pub = nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("initialpose", 100);
   cmd_state_pub = nh.advertise<std_msgs::Int32>("/cmd_state", 100);
@@ -349,7 +349,7 @@ bool AprilTagLocalize(tf::TransformListener &listener)
               // (i.e.: AMCL current pose differs more than threshold)
               // if it is within a threshold don't update. Let AMCL keep working its magic until we are fairly
               // sure it's lost.
-              
+
               if (PosesDiffer(amcl_pose.pose, newRobotPose.pose))
               {
                 new_pose_pub.publish(poseStamped);
@@ -402,8 +402,8 @@ void PublishGoalPoses(tf::TransformListener& listener)
       // not tied to ros::rate since want to see most current up to 10Hz
       if (ros::Time::now() - ros::Duration(5.0) > last_goal_send_time) {
         tf::StampedTransform transform;
-        
-        global_planner::GarbageCan can;
+
+        global_planner::GoalMsg can;
         geometry_msgs::PoseStamped ps;
         tf::Quaternion quat;
 
@@ -428,9 +428,9 @@ void PublishGoalPoses(tf::TransformListener& listener)
         ps.pose.orientation = quatMsg;
 
         //Finish creating message & publish
-        can.pose = ps;
+        can.pose = ps.pose;
         //TODO: make more correct
-        can.can_num = 6;
+        can.id = 6;
 
         tags_pub.publish(can);
         last_goal_send_time = ros::Time::now();
