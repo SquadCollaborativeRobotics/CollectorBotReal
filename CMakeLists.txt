@@ -9,7 +9,6 @@ find_package(catkin REQUIRED COMPONENTS roscpp
                   rospy
                   std_msgs
                   genmsg
-                  global_planner
                   message_generation
                   geometry_msgs
                   april_tags
@@ -69,7 +68,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES april_tags_lib
-  CATKIN_DEPENDS roscpp rospy rosserial_arduino april_tags std_msgs message_runtime global_planner
+  CATKIN_DEPENDS roscpp rospy rosserial_arduino april_tags std_msgs message_runtime
   DEPENDS eigen
 )
 
@@ -117,7 +116,6 @@ add_dependencies(base_controller_node scr_proto_generate_messages_cpp)
 
 add_executable(remote_control_node src/remote_control_node.cpp)
 target_link_libraries(remote_control_node ${catkin_LIBRARIES})
-add_dependencies(remote_control_node scr_proto_generate_messages_cpp)
 
 
 ##add_executable(nav_goals_node src/nav_goals_node.cpp)
