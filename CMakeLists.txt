@@ -94,6 +94,15 @@ target_link_libraries(global_planner ${catkin_LIBRARIES})
 add_executable(april_tags_processor src/AprilTagsProcessor.cpp)
 target_link_libraries(april_tags_processor ${catkin_LIBRARIES})
 
+add_executable(pose_to_odom src/odometry_publisher_hector_mapping.cpp)
+target_link_libraries(pose_to_odom ${catkin_LIBRARIES})
+
+add_executable(map_future_dater src/map_future_dater.cpp)
+target_link_libraries(map_future_dater ${catkin_LIBRARIES})
+
+add_executable(tf_odom_map_future_dater src/tf_odom_map_future_dater.cpp)
+target_link_libraries(tf_odom_map_future_dater ${catkin_LIBRARIES})
+
 ## Declare a cpp executable
 
 #add_executable(motor_node src/motor_node.cpp)
@@ -108,8 +117,8 @@ add_executable(base_controller_node src/base_controller_node.cpp)
 target_link_libraries(base_controller_node ${catkin_LIBRARIES})
 add_dependencies(base_controller_node scr_proto_generate_messages_cpp)
 
-##add_executable(nav_goals_node src/nav_goals_node.cpp)
-#target_link_libraries(nav_goals_node ${catkin_LIBRARIES})
+add_executable(nav_goals_node src/nav_goals_node.cpp)
+target_link_libraries(nav_goals_node ${catkin_LIBRARIES})
 
 
 ## Add cmake target dependencies of the executable/library

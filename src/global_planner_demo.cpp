@@ -5,6 +5,8 @@
 #include <boost/thread/mutex.hpp>
 #include "std_msgs/Int32.h"
 
+#define PI 3.14159265
+
 // The global planner uses the actionlib to do the following:
 // Start in safe mode
 //
@@ -64,7 +66,7 @@ struct search_pose
 search_pose search_poses[] = { {1, -1, 0, 1},
                                {1.6, 1, 1, 0},
                                {-2, .85, -.73, .68},
-                               {-2, -1, 0, 1},
+                               {-2, -.85, 0, 1},
                                {0, -1, 0.67, 0.72}
                              };
 // End position
@@ -87,10 +89,19 @@ void setGoalPose(const search_pose &s,
 void getGoalPoseFromTrashcan(const geometry_msgs::PoseStamped::ConstPtr& msg,
                              move_base_msgs::MoveBaseGoal &goal) {
   double theta = 2 * acos(msg->pose.orientation.w);
-  setGoalPoseRaw(msg->pose.position.x + 0.35*cos(theta),
-                 msg->pose.position.y + 0.35*sin(theta),
-                 msg->pose.orientation.z,
-                 msg->pose.orientation.w,
+  
+  // The given pose of trashcan is out of phase
+  theta += PI;
+
+  // Get new z & w 
+  double z = sin(theta / 2.0);
+  double w = cos(theta / 2.0);
+  
+  // Set goal from updated theta values 
+  setGoalPoseRaw(msg->pose.position.x - 0.6*cos(theta),
+                 msg->pose.position.y - 0.6*sin(theta),
+                 z,
+                 w,
                  goal);
   goal.target_pose.header.frame_id = "map";
   goal.target_pose.header.stamp = ros::Time::now();
@@ -133,7 +144,7 @@ void transition(State state, ros::NodeHandle &n) {
     switch(currState) {
       case SAFE:
       action_client_ptr->cancelAllGoals(); // Cancel any current move goals
-      sub.shutdown();
+      // sub.shutdown();
       command_value = 0;
       break;
 
@@ -218,6 +229,7 @@ int main(int argc, char** argv){
 
   // Subscribe to command node
   ros::Subscriber cmd_sub = n.subscribe("cmd_state", 10, commandCallback);
+  sub = n.subscribe("apriltags", 1000, trashcanTagSearcherCallback);
 
   action_client_ptr.reset( new MoveBaseClient("move_base", true) );
 

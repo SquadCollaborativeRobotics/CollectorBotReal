@@ -20,9 +20,9 @@ bool last_pose_update_time_exists = false;
 ros::Time first_seen_tag;
 bool first_seen_tag_exists = false;
 
-ros::Duration localization_delay(30.0);
+ros::Duration localization_delay(5.0);
 ros::Duration tag_delay(1.5);
-ros::Duration tag_timeout(5.0);
+ros::Duration tag_timeout(3.0);
 
 // Publisher that sends out an april tag that is a possible goal node?
 ros::Publisher tags_pub;
@@ -54,6 +54,8 @@ void init(ros::NodeHandle nh)
 //  else
 //   update pose estimate with tag X
 // do this not more than once every Y seconds
+
+bool doneOnce = false;
 
 bool shouldUpdate(){
   
@@ -133,7 +135,9 @@ bool AprilTagLocalize(tf::TransformListener &listener)
         // shouldUpdate ASSUMES IT ONLY GETS CALLED WHEN AN APRIL TAG IS SEEN
         // Maybe introduce a parameter that tracks which april tag is seen?
         // ROS_INFO("Could update %d %d", first_seen_tag_exists, last_pose_update_time_exists);
-        if (shouldUpdate()){
+        //
+        // if (false){
+        if (shouldUpdate() && !doneOnce){
           tf::StampedTransform map_landmark_transform;
           tf::StampedTransform difference_transform;
           tf::StampedTransform tag_to_base_transform;
@@ -205,6 +209,7 @@ bool AprilTagLocalize(tf::TransformListener &listener)
             ROS_INFO("PUBLISHING NEW POSE ESTIMATE!");
             new_pose_pub.publish(poseStamped);
             new_initial_pose_pub.publish(newRobotPose);
+            doneOnce = true;
 
             last_pose_update_time = ros::Time::now();
           }
