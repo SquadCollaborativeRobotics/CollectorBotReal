@@ -5,9 +5,15 @@
   <!-- Run the map server -->
   <node name="map_server" pkg="map_server" type="map_server" args="$(find scr_proto)/maps/testing127.yaml"/>
 
+  <!-- Start Hardware for AmigoBot plus things needed for navigation -->
+  <include file="$(find scr_proto)/launch/proto_launch.launch" />
+
   <!-- - Run AMCL  -->
   <node pkg="amcl" type="amcl" name="amcl" output="screen">
     <!-- Publish scans from best pose at a max of 10 Hz -->
+    <param name="global_frame_id" value="/map"/>
+    <param name="odom_frame_id" value="/odom"/>
+    <param name="base_frame_id" value="/base_link"/>
     <param name="odom_model_type" value="diff"/>
     <param name="odom_alpha5" value="0.1"/>
     <param name="transform_tolerance" value="0.2" />
@@ -47,14 +53,6 @@
     <rosparam file="$(find scr_proto)/navstack_cfg/local_costmap_params.yaml" command="load" />
     <rosparam file="$(find scr_proto)/navstack_cfg/global_costmap_params.yaml" command="load" />
     <rosparam file="$(find scr_proto)/navstack_cfg/base_local_planner_params-proto.yaml" command="load" />
-  </node>
-
-  <node name="kinect_laser" type="depthimage_to_laserscan" pkg="depthimage_to_laserscan" args="image:=/camera/depth/image_raw">
-    <param name="scan_height" value="1.0" /> <!-- height in pixels of laserscan, scan line is center of image -->
-    <param name="scan_time" value=".035" /> <!-- 1/frame rate, need to find this -->
-    <param name="range_min" value=".45" /> <!-- range in meters of minimum scan distance -->
-    <param name="range_max" value="10" /> <!-- range in meters of maximum scan distance -->
-    <param name="output_frame_id" value="camera_depth_frame" /> <!-- Frame id of scans --> 
   </node>
 
 </launch>
