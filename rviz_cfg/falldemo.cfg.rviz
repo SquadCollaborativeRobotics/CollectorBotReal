@@ -7,6 +7,7 @@ Panels:
         - /Global Options1
         - /Status1
         - /TF1
+        - /Global1
       Splitter Ratio: 0.5
     Tree Height: 595
   - Class: rviz/Selection
@@ -202,6 +203,14 @@ Visualization Manager:
       Name: PoseArray
       Topic: /particlecloud
       Value: true
+    - Alpha: 0.3
+      Class: rviz/Map
+      Color Scheme: map
+      Draw Behind: false
+      Enabled: true
+      Name: Global
+      Topic: /move_base/global_costmap/costmap
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -226,7 +235,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 4.7697
+      Distance: 6.38894
       Focal Point:
         X: 0.899498
         Y: 0.141638
