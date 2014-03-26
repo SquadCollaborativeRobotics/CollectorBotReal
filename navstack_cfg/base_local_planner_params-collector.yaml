@@ -3,12 +3,12 @@
 
 TrajectoryPlannerROS:
   min_vel_x: 0.05
-  max_vel_x: 0.5
-  max_rotational_vel: 3.74 # rad/sec
-  min_in_place_rotational_vel: 1.0 # The minimum rotational velocity allowed for the base while performing in-place rotations in radians/sec
+  max_vel_x: 0.4
+  max_rotational_vel: 1.25 # rad/sec
+  min_in_place_rotational_vel: .5 # The minimum rotational velocity allowed for the base while performing in-place rotations in radians/sec
 
-  acc_lim_th: 2.2
-  acc_lim_x: 2.0
-  acc_lim_y: 2.0
+  acc_lim_th: 1.5
+  acc_lim_x: 1.0
+  acc_lim_y: 1.0
 
   holonomic_robot: false
