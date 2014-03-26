@@ -16,7 +16,7 @@
   <!-- <node pkg="tf" type="static_transform_publisher" name="base_link_to_center" args="0.2413 0 0 0 0 0 robot_center base_link 30" /> -->
   <!-- Static tf transform between robot center to the hokuyo laser -->
   <!-- <node pkg="tf" type="static_transform_publisher" name="hokuyo_transform" args=".25 0 .2 0 0 0 base_link hokuyo_frame 30" /> -->
-  <node pkg="tf" type="static_transform_publisher" name="hokuyo_transform" args=".02 0 .2 0 0 0 base_link hokuyo_frame 30" />
+  <node pkg="tf" type="static_transform_publisher" name="hokuyo_transform" args=".03175 0 .125 0 0 0 base_link hokuyo_frame 30" />
 
   <!-- Launch Hokuyo -->
   <node pkg="hokuyo_node" name="hokuyo" type="hokuyo_node">
