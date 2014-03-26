@@ -66,7 +66,7 @@ int main(int argc, char** argv){
   tf::TransformBroadcaster odom_broadcaster;
 
   // Initialize variables for loop
-  ros::Rate r(60.0);
+  ros::Rate r(30.0);
   ros::Time current_time = ros::Time::now();
   ros::Time last_time = ros::Time::now();
 
