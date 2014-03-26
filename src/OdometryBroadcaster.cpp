@@ -21,7 +21,7 @@ double rws = 0; // Right wheel speed (angular velocity)
 
 #define WHEEL_DIAMETER 0.123825 //meters
 #define WHEEL_RADIUS WHEEL_DIAMETER/2.0 //meters
-#define WHEEL_SEPARATION 5.5*.0254 // meters
+#define WHEEL_SEPARATION 5.5*.0254*2 // meters
 // Distance between two wheels along axis of rotation.
 // Wheel separation is the distance between the centers of the 2 drive wheels
 // the numbers here are: 0.445 => distance between the far edge of each wheel
