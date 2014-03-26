@@ -1,0 +1,12 @@
+<launch>
+
+  <!-- Launches the Amigobot OS (ROSARIA) -->
+  <node name="amigobot_node" pkg="rosaria" type="RosAria">
+    <param name="_port" value="/dev/ttyUSB0"/>
+    <remap from="amigobot_node/cmd_vel" to="cmd_vel"/>
+  </node>
+
+  <!-- Node takes sonar data and formats it as laserscan data -->
+  <node name="sonar_to_laserscan" pkg="sonar_to_laserscan" type="sonar_to_laserscan_node"></node>
+
+</launch>
