@@ -97,8 +97,6 @@ target_link_libraries(odom_test ${catkin_LIBRARIES})
 add_executable(odom_broadcaster_node src/OdometryBroadcaster.cpp)
 target_link_libraries(odom_broadcaster_node ${catkin_LIBRARIES})
 
-add_executable(april_tags_processor src/AprilTagsProcessor.cpp)
-target_link_libraries(april_tags_processor ${catkin_LIBRARIES})
 
 ## Declare a cpp executable
 
