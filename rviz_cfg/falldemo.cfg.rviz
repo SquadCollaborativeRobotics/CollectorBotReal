@@ -146,7 +146,7 @@ Visualization Manager:
       Enabled: true
       Head Length: 0.3
       Head Radius: 0.1
-      Name: Pose
+      Name: GoalPose
       Shaft Length: 1
       Shaft Radius: 0.05
       Shape: Arrow
@@ -195,36 +195,7 @@ Visualization Manager:
       Shape: Arrow
       Topic: /new_pose
       Value: true
-    - Alpha: 1
-      Autocompute Intensity Bounds: true
-      Autocompute Value Bounds:
-        Max Value: 10
-        Min Value: -10
-        Value: true
-      Axis: Z
-      Channel Name: intensity
-      Class: rviz/LaserScan
-      Color: 255; 255; 255
-      Color Transformer: Intensity
-      Decay Time: 0
-      Enabled: true
-      Invert Rainbow: false
-      Max Color: 255; 255; 255
-      Max Intensity: 4096
-      Min Color: 0; 0; 0
-      Min Intensity: 0
-      Name: LaserScan
-      Position Transformer: XYZ
-      Queue Size: 10
-      Selectable: true
-      Size (Pixels): 3
-      Size (m): 0.01
-      Style: Flat Squares
-      Topic: /kinectscan
-      Use Fixed Frame: true
-      Use rainbow: true
-      Value: true
-    - Arrow Length: 0.3
+    - Arrow Length: 0.1
       Class: rviz/PoseArray
       Color: 255; 25; 0
       Enabled: true
@@ -255,17 +226,17 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 6.53276
+      Distance: 4.7697
       Focal Point:
         X: 0.899498
         Y: 0.141638
         Z: -0.466891
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.954797
+      Pitch: 1.1098
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 4.9904
+      Yaw: 5.0204
     Saved:
       - Class: rviz/Orbit
         Distance: 10

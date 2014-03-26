@@ -19,9 +19,10 @@ double rws = 0; // Right wheel speed (angular velocity)
 
 #define PI 3.1415926
 
-#define WHEEL_DIAMETER 0.123825 //meters
-#define WHEEL_RADIUS WHEEL_DIAMETER/2.0 //meters
-#define WHEEL_SEPARATION 5.5*.0254*2 // meters
+// WARNING : #defines are put IN PLACE so keep parentheses around them
+#define WHEEL_DIAMETER (0.123825) //meters
+#define WHEEL_RADIUS (WHEEL_DIAMETER/2.0) //meters
+#define WHEEL_SEPARATION (0.2794) // meters // 5.5 inches to meters * 2
 // Distance between two wheels along axis of rotation.
 // Wheel separation is the distance between the centers of the 2 drive wheels
 // the numbers here are: 0.445 => distance between the far edge of each wheel
@@ -85,7 +86,7 @@ int main(int argc, char** argv){
       // The lws and rws are in terms of radians/second
       vx  = (WHEEL_RADIUS) * (lws + rws) / 2.0 * cos(th);
       vy  = (WHEEL_RADIUS) * (lws + rws) / 2.0 * sin(th);
-      vth = (WHEEL_RADIUS / WHEEL_SEPARATION) * (rws - lws);
+      vth = (WHEEL_RADIUS / WHEEL_SEPARATION) * (rws - lws);  // TODO : SAM FIX
 
       // Update positions with velocity integrated euler step
       x  += vx * dt;
