@@ -5,7 +5,7 @@
 #include <eigen3/Eigen/Dense>
 
 // Physical Parameters... What do to with these?
-double wheel_radius=4.875/2.0*.0254, axle_half_length=8.4*.0254;
+double wheel_radius=4.875/2.0*.0254, axle_half_length=5.5*.0254;
 // Maximum loaded motor rotation speed in radians per sec
 double motor_max_speed=25;
 
@@ -78,7 +78,7 @@ int main(int argc, char **argv){
   // Subscribe to Command Velocity topic
   ros::Subscriber cmd_vel_sub = n.subscribe("cmd_vel", 1000, commandCallback);
 
-  ros::Publisher speed_pub = n.advertise<scr_proto::SpeedCommand>("/speed_command", 1000);
+  ros::Publisher speed_pub = n.advertise<scr_proto::SpeedCommand>("speed_command", 1000);
 
   ros::Rate loop_rate(10);
 

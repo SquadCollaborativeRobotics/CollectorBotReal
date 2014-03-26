@@ -14,4 +14,22 @@
 
   <include file="$(find scr_proto)/launch/static_transforms.launch" />
 
+<<<<<<< Updated upstream
+=======
+  <!-- Adjust the location of the kinect relative to the baselink here -->
+  <node pkg="tf" type="static_transform_publisher" name="p3dx_camera_link_publisher" args="0.10 0 0.14 0 0 0 base_link laser 1000" />
+
+  <!-- Launches the Amigobot OS (ROSARIA) -->
+  <node name="p3_node" pkg="rosaria" type="RosAria">
+    <param name="_port" value="/dev/ttyUSB0"/>
+    <remap from="p3_node/cmd_vel" to="cmd_vel"/>
+  </node>
+
+  <!-- Global Planner for Demo on 12/4 -->
+  <!-- <node name="scr_global_planner" pkg="scr_proto" type="global_planner"></node> -->
+
+  <!-- Rviz for Viewing -->
+  <node name="rviz" pkg="rviz" type="rviz"></node>
+
+>>>>>>> Stashed changes
 </launch>
