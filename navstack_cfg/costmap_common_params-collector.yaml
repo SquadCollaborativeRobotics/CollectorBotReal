@@ -1,10 +1,11 @@
-#the obstacle range is the maximum distance that kinect hits turn into actual obstacles
+# The obstacle range is the maximum distance that the hokuyo laser hits that turn into actual obstacles
 obstacle_range: 3.0
-#raytrace range is the maximum distance that if no obstacle is seen, it is "clear"
+# Raytrace range is the maximum distance that if no obstacle is seen, it is "clear"
 raytrace_range: 3.5
 
 # [x0,y0] in this order=> front right, rear right, rear left, front left
 footprint: [[0.0889, 0.1524], [0.0889, -0.1524], [-0.2667, -0.1524], [-0.2667, 0.1524]]
+
 #robot_radius: ir_of_robot
 inflation_radius: 0.55
 

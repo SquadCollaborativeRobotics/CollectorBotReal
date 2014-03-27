@@ -1,14 +1,16 @@
-#for pioneer p3-dx
-#Specs obtained from: http://www.mobilerobots.com/Libraries/Downloads/Pioneer3DX-P3DX-RevA.sflb.ashx
-
+#Custom collector bot : Cristoff
 TrajectoryPlannerROS:
   min_vel_x: 0.05
   max_vel_x: 0.4
-  max_rotational_vel: 1.25 # rad/sec
-  min_in_place_rotational_vel: .5 # The minimum rotational velocity allowed for the base while performing in-place rotations in radians/sec
+  max_rotational_vel: 0.4 # rad/sec
+  min_in_place_rotational_vel: .1 # The minimum rotational velocity allowed for the base while performing in-place rotations in radians/sec
+  max_in_place_rotational_vel: .4 # The minimum rotational velocity allowed for the base while performing in-place rotations in radians/sec
 
   acc_lim_th: 1.5
   acc_lim_x: 1.0
   acc_lim_y: 1.0
+
+  yaw_goal_tolerance: 0.25 #radians ~= 15 degrees
+  xy_goal_tolerance: 0.15 #meters
 
   holonomic_robot: false
