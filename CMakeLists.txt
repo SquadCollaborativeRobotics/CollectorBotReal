@@ -4,14 +4,14 @@ project(scr_proto)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS roscpp
+find_package(catkin REQUIRED COMPONENTS
+                  roscpp
                   tf
                   rospy
                   std_msgs
                   genmsg
                   message_generation
                   geometry_msgs
-                  april_tags
                 )
 
 find_package(eigen REQUIRED)
@@ -54,6 +54,7 @@ generate_messages(
     std_msgs
     geometry_msgs
     actionlib_msgs
+    april_tags
 )
 
 ###################################
@@ -67,7 +68,7 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES april_tags_lib
+  LIBRARIES
   CATKIN_DEPENDS roscpp rospy rosserial_arduino april_tags std_msgs message_runtime
   DEPENDS eigen
 )
