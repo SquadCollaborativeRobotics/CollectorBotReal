@@ -6,6 +6,7 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /Odometry1/Status1
         - /TF1
         - /Global1
       Splitter Ratio: 0.5
@@ -61,13 +62,13 @@ Visualization Manager:
     - Angle Tolerance: 0.1
       Class: rviz/Odometry
       Color: 255; 25; 0
-      Enabled: false
+      Enabled: true
       Keep: 2
       Length: 1
       Name: Odometry
       Position Tolerance: 0.1
       Topic: /odom
-      Value: false
+      Value: true
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -106,8 +107,6 @@ Visualization Manager:
           Value: true
         hokuyo_frame:
           Value: true
-        map:
-          Value: true
         odom:
           Value: true
       Marker Scale: 1
@@ -116,11 +115,10 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        map:
-          odom:
-            base_link:
-              hokuyo_frame:
-                {}
+        odom:
+          base_link:
+            hokuyo_frame:
+              {}
       Update Interval: 0
       Value: true
     - Alpha: 1
@@ -214,7 +212,7 @@ Visualization Manager:
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: map
+    Fixed Frame: odom
     Frame Rate: 30
   Name: root
   Tools:
@@ -235,20 +233,30 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 6.38894
+      Distance: 5.54467
+      Enable Stereo Rendering:
+        Stereo Eye Separation: 0.06
+        Stereo Focal Distance: 1
+        Swap Stereo Eyes: false
+        Value: false
       Focal Point:
         X: 0.899498
         Y: 0.141638
         Z: -0.466891
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 1.1098
+      Pitch: 0.8348
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 5.0204
+      Yaw: 5.0604
     Saved:
       - Class: rviz/Orbit
         Distance: 10
+        Enable Stereo Rendering:
+          Stereo Eye Separation: 0.06
+          Stereo Focal Distance: 1
+          Swap Stereo Eyes: false
+          Value: false
         Focal Point:
           X: 0
           Y: 0

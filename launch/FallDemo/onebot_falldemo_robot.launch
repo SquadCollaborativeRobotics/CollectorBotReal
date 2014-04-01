@@ -23,6 +23,7 @@
     <param name="frame_id" value="hokuyo_frame"/>
     <param name="min_ang" value="-2.0"/>
     <param name="max_ang" value="2.0"/>
+    <param name="time_offset" value="0.25"/>
   </node>
 
   <!-- - Run AMCL  (map -> odom) -->
