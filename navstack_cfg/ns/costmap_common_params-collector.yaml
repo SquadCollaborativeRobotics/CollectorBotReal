@@ -1,7 +1,7 @@
 # The obstacle range is the maximum distance that the hokuyo laser hits that turn into actual obstacles
-obstacle_range: 6.0
+obstacle_range: 4.0
 # Raytrace range is the maximum distance that if no obstacle is seen, it is "clear"
-raytrace_range: 6.5
+raytrace_range: 4.5
 
 # [x0,y0] in this order=> front right, rear right, rear left, front left
 footprint: [[0.0889, 0.1524], [0.0889, -0.1524], [-0.2667, -0.1524], [-0.2667, 0.1524]]

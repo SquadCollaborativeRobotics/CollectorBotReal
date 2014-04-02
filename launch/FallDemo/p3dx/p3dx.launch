@@ -1,35 +1,32 @@
 <launch>
+  <arg name="tf_prefix" value="" />
 
-  <!-- Start Base Controller -->
-  <node name="base_controller" 
-         pkg="scr_proto" type="base_controller_node">
-   </node>
-
-   <!-- Odom Broadcaster for odom to robot_center -->
-  <node name="odom_broadcaster_node" pkg="scr_proto" type="odom_broadcaster_node" />
-
-   <!-- Start Arduino Serial -->
-    <node name="arduino_serial" pkg="rosserial_python" type="serial_node.py">
-      <param name="~port" value="/dev/ttyACM2" />
-        <param name="baud" value="115200"/>
-   </node>
-
-   <arg name="tf_prefix" value="" />
-   
-  <!-- Static tf transform between robot center to base link -->
-  <!-- <node pkg="tf" type="static_transform_publisher" name="base_link_to_center" args="0.2413 0 0 0 0 0 robot_center base_link 30" /> -->
-  <!-- Static tf transform between robot center to the hokuyo laser -->
-  <!-- <node pkg="tf" type="static_transform_publisher" name="hokuyo_transform" args=".25 0 .2 0 0 0 base_link hokuyo_frame 30" /> -->
-  <node pkg="tf" type="static_transform_publisher" name="hokuyo_transform" args=".03175 0 .125 0 0 0 base_link hokuyo_frame 30" />
-
-  <!-- Launch Hokuyo -->
-  <node pkg="hokuyo_node" name="hokuyo" type="hokuyo_node">
-    <param name="~port" value="/dev/ttyACM1" />
-    <param name="frame_id" value="hokuyo_frame"/>
-    <param name="min_ang" value="-2.0"/>
-    <param name="max_ang" value="2.0"/>
-    <!-- <param name="time_offset" value="0.25"/> -->
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find scr_proto)/maps/hok1.yaml">
+    <!-- <param name="frame_id" value="/map" /> -->
   </node>
+
+  <!-- Node takes sonar data and formats it as laserscan data -->
+  <!-- sonar_to_laserscan is based on p3bots sonar locations -->
+  <!-- <node name="sonar_to_laserscan" pkg="sonar_to_laserscan" type="sonar_to_laserscan_node"></node> -->
+
+  <!-- Launches Kinect Driver with Everything Started -->
+  <include file="$(find freenect_launch)/launch/freenect.launch" />
+
+  <!-- Takes Depthcloud data and formats as a laserscan -->
+  <node name="kinect_laser" type="depthimage_to_laserscan" pkg="depthimage_to_laserscan" args="image:=/camera/depth/image_raw">
+    <!-- <remap from="scan" to="kinectscan"/> -->
+    <!-- TODO: MERGE SONAR WITH KINECT -->
+  </node>
+
+  <!-- Launches the p3bot OS (ROSARIA) -->
+  <node name="p3_node" pkg="rosaria" type="RosAria">
+    <param name="_port" value="/dev/ttyUSB0"/>
+    <remap from="p3_node/cmd_vel" to="cmd_vel"/>
+  </node>
+
+  <!-- Adjust the location of the kinect relative to the baselink here -->
+  <!-- TODO: FIND KINECT POS ON P3DX -->
+  <node pkg="tf" type="static_transform_publisher" name="p3_camera_link_publisher" args="0.11 0 0.08 0 0 0 base_link camera_link 1000" />
 
   <!-- - Run AMCL  (map -> odom) -->
   <param name="amcl/initial_pose_x" value="1" />

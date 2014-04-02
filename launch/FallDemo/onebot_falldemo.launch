@@ -10,9 +10,6 @@
     <!-- <param name="frame_id" value="/map" /> -->
   </node>
 
-  <!-- Odom Broadcaster for odom to robot_center -->
-  <node name="odom_broadcaster_node" pkg="scr_proto" type="odom_broadcaster_node" />
-
   <!-- Start the robot (HOKUYO, AMCL & MOVEBASE) -->
   <include file="$(find scr_proto)/launch/FallDemo/onebot_falldemo_robot.launch"/>
 

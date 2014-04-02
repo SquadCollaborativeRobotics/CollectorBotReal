@@ -7,7 +7,7 @@
 // Physical Parameters... What do to with these?
 double wheel_radius=4.875/2.0*.0254, axle_half_length=5.5*.0254;
 // Maximum loaded motor rotation speed in radians per sec
-double motor_max_speed=25;
+// double motor_max_speed=25;
 
 // Global values for velocity storage
 double cmd_vx=0, cmd_vy=0, cmd_vz=0, cmd_wx=0, cmd_wy=0, cmd_wz=0;
@@ -34,8 +34,8 @@ Eigen::Vector2d getWheelLinSpeeds(double wheel_offset, double cmd_x, double cmd_
   */
 
   // Diff Drive Dynamics Solution, vr = right wheel velocity, vl = left wheel velocity
-  double vr = cmd_x + cmd_th * wheel_offset/2.0;
-  double vl = cmd_x - cmd_th * wheel_offset/2.0;
+  double vr = cmd_x + cmd_th * wheel_offset;
+  double vl = cmd_x - cmd_th * wheel_offset;
 
   // Vector for result and return
   Eigen::Vector2d x;
@@ -80,7 +80,7 @@ int main(int argc, char **argv){
 
   ros::Publisher speed_pub = n.advertise<scr_proto::SpeedCommand>("speed_command", 1000);
 
-  ros::Rate loop_rate(10);
+  ros::Rate loop_rate(30);
 
   while(ros::ok()){
     
