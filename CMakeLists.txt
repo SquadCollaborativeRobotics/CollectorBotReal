@@ -104,10 +104,6 @@ target_link_libraries(odom_broadcaster_node ${catkin_LIBRARIES})
 #target_link_libraries(motor_node serial_interface ${catkin_LIBRARIES} ${SER_LIB})
 #add_dependencies(motor_node scr_proto_generate_messages_cpp)
 
-add_executable(speed_controller_node src/speed_controller_node.cpp)
-target_link_libraries(speed_controller_node ${catkin_LIBRARIES})
-add_dependencies(speed_controller_node scr_proto_generate_messages_cpp)
-
 add_executable(base_controller_node src/base_controller_node.cpp)
 target_link_libraries(base_controller_node ${catkin_LIBRARIES})
 add_dependencies(base_controller_node scr_proto_generate_messages_cpp)
