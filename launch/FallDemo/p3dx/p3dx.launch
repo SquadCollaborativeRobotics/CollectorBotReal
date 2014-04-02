@@ -76,11 +76,11 @@
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
     <!-- <param name="controller_frequency" value="10.0" /> -->
     
-    <rosparam file="$(find scr_proto)/navstack_cfg/costmap_common_params-collector.yaml" command="load" ns="global_costmap" />
-    <rosparam file="$(find scr_proto)/navstack_cfg/costmap_common_params-collector.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find scr_proto)/navstack_cfg/costmap_common_params-p3.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find scr_proto)/navstack_cfg/costmap_common_params-p3.yaml" command="load" ns="local_costmap" />
     <rosparam file="$(find scr_proto)/navstack_cfg/local_costmap_params.yaml" command="load" />
     <rosparam file="$(find scr_proto)/navstack_cfg/global_costmap_params.yaml" command="load" />
-    <rosparam file="$(find scr_proto)/navstack_cfg/base_local_planner_params-collector.yaml" command="load" />
+    <rosparam file="$(find scr_proto)/navstack_cfg/base_local_planner_params-p3.yaml" command="load" />
   </node>
 
 
