@@ -1,0 +1,102 @@
+<!-- Namespaced -->
+<launch>
+
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find scr_proto)/maps/hok1.yaml">
+    <!-- <param name="frame_id" value="/map" /> -->
+  </node>
+
+  <!-- Node takes sonar data and formats it as laserscan data -->
+  <!-- sonar_to_laserscan is based on p3bots sonar locations -->
+  <!-- <node name="sonar_to_laserscan" pkg="sonar_to_laserscan" type="sonar_to_laserscan_node"></node> -->
+
+  <group ns="robot1">
+    <arg name="tf_prefix" value="robot1_tf" />
+    <param name="tf_prefix" value="robot1_tf" /> <!-- For odom broadcaster node tf stuff -->
+    <!-- Launches Kinect Driver with Everything Started -->
+    <include file="$(find freenect_launch)/launch/freenect.launch">
+      <arg name="tf_prefix" value="robot1_tf" />
+    </include>
+
+    <!-- Node takes sonar data and formats it as laserscan data -->
+    <!-- TODO HARDCODED NAMES INSIDE -->
+    <node name="sonar_to_laserscan" pkg="sonar_to_laserscan" type="sonar_to_laserscan_node"></node>
+
+    <!-- Takes Depthcloud data and formats as a laserscan -->
+    <node name="kinect_laser" type="depthimage_to_laserscan" pkg="depthimage_to_laserscan" args="image:=camera/depth/image_raw">
+      <remap from="scan" to="kinectscan"/>
+      <param name="output_frame_id" value="$(arg tf_prefix)/camera_depth_frame" />
+      <!-- TODO: MERGE SONAR WITH KINECT -->
+    </node>
+
+    <!-- Launches the p3bot OS (ROSARIA) -->
+    <node name="p3_node" pkg="rosaria" type="RosAria">
+      <param name="_port" value="/dev/ttyUSB0"/>
+      <remap from="p3_node/cmd_vel" to="cmd_vel"/>
+    </node>
+
+    <!-- Adjust the location of the kinect relative to the baselink here -->
+    <!-- TODO: FIND KINECT POS ON P3DX -->
+    <node pkg="tf" type="static_transform_publisher" name="p3_camera_link_publisher" args="0.11 0 0.08 0 0 0 $(arg tf_prefix)/base_link $(arg tf_prefix)/camera_link 1000" />
+
+    <!-- - Run AMCL  (map -> odom) -->
+    <param name="amcl/initial_pose_x" value="1" />
+    <param name="amcl/initial_pose_y" value="1" />
+    
+    <!-- - Run AMCL  -->
+    <node pkg="amcl" type="amcl" name="amcl" output="screen">
+      <param name="odom_frame_id" value="$(arg tf_prefix)/odom"/>
+      <param name="base_frame_id" value="$(arg tf_prefix)/base_link"/>
+      <!-- http://wiki.ros.org/amcl -->
+      <param name="odom_model_type" value="diff"/>
+
+      <param name="use_map_topic" value="true"/>
+      <remap from="map" to="/map" />
+
+      <!-- Publish scans from best pose at a max of 10 Hz -->
+      <param name="transform_tolerance" value="0.2" /> <!-- This is key for sam's laptop -->
+      <param name="gui_publish_rate" value="5.0"/>
+      <param name="laser_max_beams" value="60"/>
+      <param name="min_particles" value="200"/>
+      <param name="max_particles" value="500"/>
+
+      <param name="kld_err" value="0.03"/>
+      <param name="kld_z" value="0.99"/>
+      <param name="update_min_d" value="0.2"/>
+      <param name="update_min_a" value="0.5"/>
+
+      <param name="odom_alpha1" value="0.1"/>
+      <param name="odom_alpha2" value="0.1"/>
+      <param name="odom_alpha3" value="0.1"/>
+      <param name="odom_alpha4" value="0.1"/>
+      
+      <!-- translation std dev, m -->
+      <param name="laser_z_hit" value="0.5"/>
+      <param name="laser_z_short" value="0.05"/>
+      <param name="laser_z_max" value="0.05"/>
+      <param name="laser_z_rand" value="0.5"/>
+      <param name="laser_sigma_hit" value="0.2"/>
+      <param name="laser_lambda_short" value="0.1"/>
+      <param name="laser_lambda_short" value="0.1"/>
+      <!-- <param name="laser_model_type" value="likelihood_field"/> -->
+      <!-- <param name="laser_model_type" value="beam"/> -->
+      <param name="laser_likelihood_max_dist" value="4.5"/>
+      <!-- <param name="resample_interval" value="1"/> -->
+      <param name="recovery_alpha_slow" value="0.0"/>
+      <param name="recovery_alpha_fast" value="0.0"/>
+    </node>
+
+
+    <!-- Move Base Handles interactions between Nav Stack and Robot Hardware -->
+    <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen" launch-prefix="xterm -e">
+      <param name="controller_frequency" value="10.0" />
+      <remap from="map" to="/map" />
+      
+      <rosparam file="$(find scr_proto)/navstack_cfg/costmap_common_params-p3.yaml" command="load" ns="global_costmap" />
+      <rosparam file="$(find scr_proto)/navstack_cfg/costmap_common_params-p3.yaml" command="load" ns="local_costmap" />
+      <rosparam file="$(find scr_proto)/navstack_cfg/local_costmap_params.yaml" command="load" />
+      <rosparam file="$(find scr_proto)/navstack_cfg/global_costmap_params.yaml" command="load" />
+      <rosparam file="$(find scr_proto)/navstack_cfg/base_local_planner_params-p3.yaml" command="load" />
+    </node>
+  </group>
+
+</launch>

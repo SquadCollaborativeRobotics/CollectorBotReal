@@ -4,11 +4,26 @@ obstacle_range: 3.0
 raytrace_range: 3.5
 
 # [x0,y0] in this order=> front right, rear right, rear left, front left
-footprint: [[0.185, 0.170], [0.185, -0.260], [-0.185, -0.260], [-0.185, 0.170]]
+# footprint: [[0.185, 0.170], [0.185, -0.260], [-0.185, -0.260], [-0.185, 0.170]]
+footprint: [[0.22, 0.22], [0.22, -0.28], [-0.22, -0.28], [-0.22, 0.22]]
 #robot_radius: ir_of_robot
 inflation_radius: 0.430
 
+# Original
+# observation_sources: sonar_sensor kinect_sensor
+
+# sonar_sensor: {sensor_frame: base_link, data_type: LaserScan, topic: scan, marking: true, clearing: true}
+# kinect_sensor: {sensor_frame: camera_depth_frame, data_type: LaserScan, topic: kinectscan, marking: true, clearing: true}
+
+
+# Kinect only
+# observation_sources: kinect_sensor
+
+# kinect_sensor: {sensor_frame: camera_depth_frame, data_type: LaserScan, topic: scan, marking: true, clearing: true}
+
+
+# Both
 observation_sources: sonar_sensor kinect_sensor
 
-sonar_sensor: {sensor_frame: /base_link, data_type: LaserScan, topic: /scan, marking: true, clearing: true}
-kinect_sensor: {sensor_frame: /camera_depth_frame, data_type: LaserScan, topic: /kinectscan, marking: true, clearing: true}
+sonar_sensor: {data_type: LaserScan, topic: scan, marking: true, clearing: true}
+kinect_sensor: {data_type: LaserScan, topic: kinectscan, marking: true, clearing: true}
