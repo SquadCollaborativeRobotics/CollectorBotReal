@@ -92,14 +92,14 @@ include_directories(
 
 
 ## Declare a cpp executable
-add_executable(odom_test src/Odom_Tester.cpp)
-target_link_libraries(odom_test ${catkin_LIBRARIES})
+# add_executable(odom_test src/Odom_Tester.cpp)
+# target_link_libraries(odom_test ${catkin_LIBRARIES})
 
 add_executable(odom_broadcaster_node src/OdometryBroadcaster.cpp)
 target_link_libraries(odom_broadcaster_node ${catkin_LIBRARIES})
 
-add_executable(april_tags_processor src/AprilTagsProcessor.cpp)
-target_link_libraries(april_tags_processor ${catkin_LIBRARIES})
+# add_executable(april_tags_processor src/AprilTagsProcessor.cpp)
+# target_link_libraries(april_tags_processor ${catkin_LIBRARIES})
 
 ## Declare a cpp executable
 
@@ -115,8 +115,8 @@ add_executable(base_controller_node src/base_controller_node.cpp)
 target_link_libraries(base_controller_node ${catkin_LIBRARIES})
 add_dependencies(base_controller_node scr_proto_generate_messages_cpp)
 
-add_executable(remote_control_node src/remote_control_node.cpp)
-target_link_libraries(remote_control_node ${catkin_LIBRARIES})
+# add_executable(remote_control_node src/remote_control_node.cpp)
+# target_link_libraries(remote_control_node ${catkin_LIBRARIES})
 
 
 ##add_executable(nav_goals_node src/nav_goals_node.cpp)

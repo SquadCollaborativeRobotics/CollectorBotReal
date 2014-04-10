@@ -282,25 +282,25 @@ bool AprilTagLocalize(tf::TransformListener &listener)
               // Find the distance the bot has moved while the camera image was processing
               // This will be added on after we figure out where the robot was at the time
               // of the image being taken
-              tf::StampedTransform distance_moved_since_camera_image_taken;
+              // tf::StampedTransform distance_moved_since_camera_image_taken;
 
               // past is used for determining the time at which to go back for calculating distance traveled since camera image was taken
-              ros::Time past = tag_to_camera_rgb_transform.stamp_;
+              // ros::Time past = tag_to_camera_rgb_transform.stamp_;
 
-              listener.waitForTransform("base_link", now,
-                                        "base_link", past,
-                                        "map", ros::Duration(0.5));
-              listener.lookupTransform("base_link", now,
-                                      "base_link", past,
-                                      "map", distance_moved_since_camera_image_taken);
+              // listener.waitForTransform("base_link", now,
+              //                           "base_link", past,
+              //                           "map", ros::Duration(0.5));
+              // listener.lookupTransform("base_link", now,
+              //                         "base_link", past,
+              //                         "map", distance_moved_since_camera_image_taken);
 
-              PrintTransform(distance_moved_since_camera_image_taken);
+              // PrintTransform(distance_moved_since_camera_image_taken);
 
-              if (distance_moved_since_camera_image_taken.getOrigin()[0] < 1.0 && distance_moved_since_camera_image_taken.getOrigin()[1] < 1.0)
-              {
+              // if (distance_moved_since_camera_image_taken.getOrigin()[0] < 1.0 && distance_moved_since_camera_image_taken.getOrigin()[1] < 1.0)
+              // {
                 //update the new pose with the distance moved since image taken
-                //new_pose_tf = new_pose_tf * distance_moved_since_camera_image_taken;
-              }
+                // new_pose_tf = new_pose_tf * distance_moved_since_camera_image_taken;
+              // }
 
               // Convert to a geometry message, which is what AMCL accepts
               geometry_msgs::Transform msg_tf;

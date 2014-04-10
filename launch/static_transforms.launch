@@ -1,4 +1,4 @@
 <launch>
-  <node pkg="tf" type="static_transform_publisher" name="april_tag_landmark_3" args="2.5 -0.65 0.4 0 0 0 map landmark_3 3000" />
-  <node pkg="tf" type="static_transform_publisher" name="april_tag_landmark_5" args="-2.5 0.67 0.4 3.14159265 0 0 map landmark_5 3000" />
+  <node pkg="tf" type="static_transform_publisher" name="april_tag_landmark_3" args="2.5 -0.65 0.4 0 0 0 map landmark[3] 3000" />
+  <node pkg="tf" type="static_transform_publisher" name="april_tag_landmark_5" args="-2.5 0.67 0.4 3.14159265 0 0 map landmark[5] 3000" />
 </launch>

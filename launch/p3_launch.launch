@@ -1,6 +1,6 @@
 <launch>
   <!-- Load up the machines to use.  default uses the local machine -->
-  <include file="$(find scr_proto)/launch/computers.machine" />
+  <include file="$(find global_planner)/launch/computers.machine" />
 
   <!-- Node Processes April Tags seen and localizes robot -->
   <!-- <node name="april_tags_processor" pkg="scr_proto" type="april_tags_processor"></node> -->
