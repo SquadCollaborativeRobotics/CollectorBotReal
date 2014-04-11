@@ -9,12 +9,12 @@
   <!-- sonar_to_laserscan is based on p3bots sonar locations -->
   <!-- <node name="sonar_to_laserscan" pkg="sonar_to_laserscan" type="sonar_to_laserscan_node"></node> -->
 
-  <group ns="robot1">
-    <arg name="tf_prefix" value="robot1_tf" />
-    <param name="tf_prefix" value="robot1_tf" /> <!-- For odom broadcaster node tf stuff -->
+  <group ns="robot2">
+    <arg name="tf_prefix" value="robot2_tf" />
+    <param name="tf_prefix" value="robot2_tf" /> <!-- For odom broadcaster node tf stuff -->
     <!-- Launches Kinect Driver with Everything Started -->
     <include file="$(find freenect_launch)/launch/freenect.launch">
-      <arg name="tf_prefix" value="robot1_tf" />
+      <arg name="tf_prefix" value="robot2_tf" />
     </include>
 
     <!-- Node takes sonar data and formats it as laserscan data -->
@@ -39,7 +39,7 @@
     <node pkg="tf" type="static_transform_publisher" name="p3_camera_link_publisher" args="0.11 0 0.08 0 0 0 $(arg tf_prefix)/base_link $(arg tf_prefix)/camera_link 1000" />
 
     <!-- - Run AMCL  (map -> odom) -->
-    <param name="amcl/initial_pose_x" value="1" />
+    <param name="amcl/initial_pose_x" value="0" />
     <param name="amcl/initial_pose_y" value="1" />
     
     <!-- - Run AMCL  -->
