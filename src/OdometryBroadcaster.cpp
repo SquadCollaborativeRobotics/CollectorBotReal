@@ -88,7 +88,6 @@ int main(int argc, char** argv){
 
     // Only update values if the last updated wheel speeds were within the last second, otherwise zero them out
     if ((current_time - last_lw_time < ros::Duration(1.0)) && (current_time - last_rw_time < ros::Duration(1.0)))
-
     {
       //compute odometry in a typical way given the velocities of the robot
       double dt = (current_time - last_time).toSec();
