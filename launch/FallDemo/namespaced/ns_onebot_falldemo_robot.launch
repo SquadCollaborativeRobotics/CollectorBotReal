@@ -8,7 +8,7 @@
     <node name="odom_broadcaster_node" pkg="scr_proto" type="odom_broadcaster_node" />
 
     <!-- Start Base Controller -->
-    <node name="base_controller" 
+    <node name="base_controller"
            pkg="scr_proto" type="base_controller_node">
      </node>
 
@@ -22,6 +22,7 @@
     <!-- Static tf transform between robot center to the hokuyo laser -->
     <!-- <node pkg="tf" type="static_transform_publisher" name="hokuyo_transform" args=".25 0 .2 0 0 0 base_link hokuyo_frame 30" /> -->
     <!-- <node pkg="tf" type="static_transform_publisher" name="hokuyo_transform" args=".03175 0 .125 0 0 0 base_link hokuyo_frame 30" /> -->
+    <node pkg="tf" type="static_transform_publisher" name="camera_transform" args=".085 0 .055 0 0 0 $(arg tf_prefix)/base_link $(arg tf_prefix)/camera_link 30" />
     <node pkg="tf" type="static_transform_publisher" name="hokuyo_transform" args=".15 0 .2 0 0 0 $(arg tf_prefix)/base_link $(arg tf_prefix)/hokuyo_frame 30" />
 
     <!-- Launch Hokuyo -->
@@ -71,7 +72,7 @@
       <param name="odom_alpha2" value="0.1"/>
       <param name="odom_alpha3" value="0.1"/>
       <param name="odom_alpha4" value="0.1"/>
-      
+
       <!-- translation std dev, m -->
       <param name="laser_z_hit" value="0.5"/>
       <param name="laser_z_short" value="0.05"/>
@@ -91,7 +92,7 @@
 
     <!-- Move Base Handles interactions between Nav Stack and Robot Hardware -->
     <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
-      
+
       <param name="controller_frequency" value="10.0" />
       <remap from="map" to="/map" />
 
