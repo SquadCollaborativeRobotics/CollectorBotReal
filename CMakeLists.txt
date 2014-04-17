@@ -11,9 +11,8 @@ find_package(catkin REQUIRED COMPONENTS roscpp
                   genmsg
                   message_generation
                   geometry_msgs
-                  april_tags
                 )
-
+find_package(april_tags)
 find_package(eigen REQUIRED)
 
 ## System dependencies are found with CMake's conventions
@@ -67,7 +66,7 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES april_tags_lib
+  # LIBRARIES april_tags_lib
   CATKIN_DEPENDS roscpp rospy rosserial_arduino april_tags std_msgs message_runtime
   DEPENDS eigen
 )
