@@ -1,8 +1,9 @@
 <launch>
 
-  <group ns="robot1">
-    <arg name="tf_prefix" value="robot1_tf" />
-    <param name="tf_prefix" value="robot1_tf" /> <!-- For odom broadcaster node tf stuff -->
+  <arg name="robot" default="robot1" />
+  <arg name="tf_prefix" default="$(arg robot)_tf" />
+  <group ns="$(arg robot)">
+    <param name="tf_prefix" value="$(arg tf_prefix)"/> <!-- For odom broadcaster node tf stuff -->
 
     <!-- Odom Broadcaster for odom to robot_center -->
     <node name="odom_broadcaster_node" pkg="scr_proto" type="odom_broadcaster_node" />
