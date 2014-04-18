@@ -1,0 +1,39 @@
+<launch>
+
+  <arg name="robot" default="robot1" />
+  <arg name="tf_prefix" default="$(arg robot)_tf" />
+  <arg name="arduino_port" default="/dev/ttyACM0" />
+  <arg name="hokuyo_port" default="/dev/ttyACM1" />
+  <group ns="$(arg robot)">
+    <param name="tf_prefix" value="$(arg tf_prefix)"/> <!-- For odom broadcaster node tf stuff -->
+
+    <!-- Odom Broadcaster for odom to robot_center -->
+    <node name="odom_broadcaster_node" pkg="scr_proto" type="odom_broadcaster_node" />
+
+    <!-- Start Base Controller -->
+    <node name="base_controller"
+           pkg="scr_proto" type="base_controller_node">
+    </node>
+
+    <!-- Start Arduino Serial -->
+    <node name="arduino_serial" pkg="rosserial_python" type="serial_node.py">
+      <param name="~port" value="$(arg arduino_port)" />
+      <param name="baud" value="115200"/>
+    </node>
+
+    <!-- Static Broadcasters -->
+    <node pkg="tf" type="static_transform_publisher" name="camera_transform" args=".085 0 .055 0 0 0 $(arg tf_prefix)/base_link $(arg tf_prefix)/camera_link 1000" />
+    <node pkg="tf" type="static_transform_publisher" name="hokuyo_transform" args=".15 0 .2 0 0 0 $(arg tf_prefix)/base_link $(arg tf_prefix)/hokuyo_frame 1000" />
+
+    <!-- Launch Hokuyo -->
+    <node pkg="hokuyo_node" name="hokuyo" type="hokuyo_node">
+      <param name="frame_id" value="$(arg tf_prefix)/hokuyo_frame"/>
+      <param name="~port" value="$(arg hokuyo_port)" />
+      <param name="min_ang" value="-2.0"/>
+      <param name="max_ang" value="2.0"/>
+      <!-- <param name="time_offset" value="0.25"/> -->
+    </node>
+
+
+  </group>
+</launch>

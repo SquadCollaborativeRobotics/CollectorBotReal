@@ -1,0 +1,67 @@
+<launch>
+
+  <arg name="robot" default="robot1" />
+  <arg name="tf_prefix" default="$(arg robot)_tf" />
+
+  <group ns="$(arg robot)">
+	<!-- - Run AMCL  (map -> odom) -->
+    <param name="amcl/initial_pose_x" value="0" />
+    <param name="amcl/initial_pose_y" value="1" />
+    
+    <!-- - Run AMCL  -->
+    <node pkg="amcl" type="amcl" name="amcl" output="screen">
+      <param name="odom_frame_id" value="$(arg tf_prefix)/odom"/>
+      <param name="base_frame_id" value="$(arg tf_prefix)/base_link"/>
+      <!-- http://wiki.ros.org/amcl -->
+      <param name="odom_model_type" value="diff"/>
+
+      <param name="use_map_topic" value="true"/>
+      <remap from="map" to="/map" />
+
+      <!-- Publish scans from best pose at a max of 10 Hz -->
+      <param name="transform_tolerance" value="0.2" /> <!-- This is key for sam's laptop -->
+      <param name="gui_publish_rate" value="5.0"/>
+      <param name="laser_max_beams" value="60"/>
+      <param name="min_particles" value="200"/>
+      <param name="max_particles" value="500"/>
+
+      <param name="kld_err" value="0.03"/>
+      <param name="kld_z" value="0.99"/>
+      <param name="update_min_d" value="0.2"/>
+      <param name="update_min_a" value="0.5"/>
+
+      <param name="odom_alpha1" value="0.1"/>
+      <param name="odom_alpha2" value="0.1"/>
+      <param name="odom_alpha3" value="0.1"/>
+      <param name="odom_alpha4" value="0.1"/>
+      
+      <!-- translation std dev, m -->
+      <param name="laser_z_hit" value="0.5"/>
+      <param name="laser_z_short" value="0.05"/>
+      <param name="laser_z_max" value="0.05"/>
+      <param name="laser_z_rand" value="0.5"/>
+      <param name="laser_sigma_hit" value="0.2"/>
+      <param name="laser_lambda_short" value="0.1"/>
+      <param name="laser_lambda_short" value="0.1"/>
+      <!-- <param name="laser_model_type" value="likelihood_field"/> -->
+      <!-- <param name="laser_model_type" value="beam"/> -->
+      <param name="laser_likelihood_max_dist" value="4.5"/>
+      <!-- <param name="resample_interval" value="1"/> -->
+      <param name="recovery_alpha_slow" value="0.0"/>
+      <param name="recovery_alpha_fast" value="0.0"/>
+    </node>
+
+
+    <!-- Move Base Handles interactions between Nav Stack and Robot Hardware -->
+    <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+      <param name="controller_frequency" value="10.0" />
+      <remap from="map" to="/map" />
+      
+      <rosparam file="$(find scr_proto)/navstack_cfg/costmap_common_params-p3.yaml" command="load" ns="global_costmap" />
+      <rosparam file="$(find scr_proto)/navstack_cfg/costmap_common_params-p3.yaml" command="load" ns="local_costmap" />
+      <rosparam file="$(find scr_proto)/navstack_cfg/local_costmap_params.yaml" command="load" />
+      <rosparam file="$(find scr_proto)/navstack_cfg/global_costmap_params.yaml" command="load" />
+      <rosparam file="$(find scr_proto)/navstack_cfg/base_local_planner_params-p3.yaml" command="load" />
+    </node>
+  </group>
+</launch>
