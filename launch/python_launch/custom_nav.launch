@@ -11,9 +11,9 @@
   <arg name="init_pose_x" default="2" />
   <arg name="init_pose_y" default="0" />
 
-  <node name="map_server" pkg="map_server" type="map_server" args="$(find scr_proto)/maps/hok1.yaml">
+  <!-- <node name="map_server" pkg="map_server" type="map_server" args="$(find scr_proto)/maps/hok1.yaml"> -->
     <!-- <param name="frame_id" value="/map" /> -->
-  </node>
+  <!-- </node> -->
 
   <group ns="$(arg robot)">
      <!-- - Run AMCL  (map -> odom) -->
