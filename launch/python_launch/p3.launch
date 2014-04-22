@@ -6,11 +6,11 @@
   <arg name="p3_port" default="/dev/ttyUSB0" />
 
   <group ns="$(arg robot)">
-    <arg name="tf_prefix" value="robot2_tf" />
-    <param name="tf_prefix" value="robot2_tf" /> <!-- For odom broadcaster node tf stuff -->
+    <!-- <arg name="tf_prefix" value="robot2_tf" /> -->
+    <param name="tf_prefix" value="$(arg robot)_tf" /> <!-- For odom broadcaster node tf stuff -->
     <!-- Launches Kinect Driver with Everything Started -->
     <include file="$(find freenect_launch)/launch/freenect.launch">
-      <arg name="tf_prefix" value="robot2_tf" />
+      <arg name="tf_prefix" value="$(arg tf_prefix)" />
     </include>
 
     <!-- Node takes sonar data and formats it as laserscan data -->

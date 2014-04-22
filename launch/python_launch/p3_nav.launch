@@ -12,6 +12,7 @@
     <node pkg="amcl" type="amcl" name="amcl" output="screen">
       <param name="odom_frame_id" value="$(arg tf_prefix)/odom"/>
       <param name="base_frame_id" value="$(arg tf_prefix)/base_link"/>
+      <param name="global_frame_id" value="/map"/>
       <!-- http://wiki.ros.org/amcl -->
       <param name="odom_model_type" value="diff"/>
 
