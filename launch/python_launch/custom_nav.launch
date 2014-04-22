@@ -2,7 +2,7 @@
 
   <!-- Load up the machines to use.  default uses the local machine -->
   <!-- <include file="$(find scr_proto)/launch/computers.machine" /> -->
-  
+
   <!-- Handles the landmark static transforms-->
   <!-- <include file="$(find scr_proto)/launch/static_transforms.launch" /> -->
 
@@ -33,6 +33,7 @@
     <node pkg="amcl" type="amcl" name="amcl" output="screen">
       <param name="odom_frame_id" value="$(arg tf_prefix)/odom"/>
       <param name="base_frame_id" value="$(arg tf_prefix)/base_link"/>
+      <param name="global_frame_id" value="/map"/>
       <!-- http://wiki.ros.org/amcl -->
       <param name="odom_model_type" value="diff"/>
 
@@ -55,7 +56,7 @@
       <param name="odom_alpha2" value="0.1"/>
       <param name="odom_alpha3" value="0.1"/>
       <param name="odom_alpha4" value="0.1"/>
-      
+
       <!-- translation std dev, m -->
       <param name="laser_z_hit" value="0.5"/>
       <param name="laser_z_short" value="0.05"/>
@@ -75,7 +76,7 @@
 
     <!-- Move Base Handles interactions between Nav Stack and Robot Hardware -->
     <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
-      
+
       <param name="controller_frequency" value="10.0" />
       <remap from="map" to="/map" />
 
