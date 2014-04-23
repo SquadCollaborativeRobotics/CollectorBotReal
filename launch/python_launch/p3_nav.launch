@@ -7,7 +7,7 @@
 	<!-- - Run AMCL  (map -> odom) -->
     <param name="amcl/initial_pose_x" value="0" />
     <param name="amcl/initial_pose_y" value="1" />
-    
+
     <!-- - Run AMCL  -->
     <node pkg="amcl" type="amcl" name="amcl" output="screen">
       <param name="odom_frame_id" value="$(arg tf_prefix)/odom"/>
@@ -35,7 +35,7 @@
       <param name="odom_alpha2" value="0.1"/>
       <param name="odom_alpha3" value="0.1"/>
       <param name="odom_alpha4" value="0.1"/>
-      
+
       <!-- translation std dev, m -->
       <param name="laser_z_hit" value="0.5"/>
       <param name="laser_z_short" value="0.05"/>
@@ -57,7 +57,7 @@
     <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
       <param name="controller_frequency" value="10.0" />
       <remap from="map" to="/map" />
-      
+
       <rosparam file="$(find scr_proto)/navstack_cfg/costmap_common_params-p3.yaml" command="load" ns="global_costmap" />
       <rosparam file="$(find scr_proto)/navstack_cfg/costmap_common_params-p3.yaml" command="load" ns="local_costmap" />
       <rosparam file="$(find scr_proto)/navstack_cfg/local_costmap_params.yaml" command="load" />

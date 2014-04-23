@@ -2,13 +2,13 @@
 
   <!-- Load up the machines to use.  default uses the local machine -->
   <!-- <include file="$(find scr_proto)/launch/computers.machine" /> -->
-  
+
   <!-- Handles the landmark static transforms-->
   <!-- <include file="$(find scr_proto)/launch/static_transforms.launch" /> -->
 
-  <node name="map_server" pkg="map_server" type="map_server" args="$(find scr_proto)/maps/hok1.yaml">
+  <!-- <node name="map_server" pkg="map_server" type="map_server" args="$(find scr_proto)/maps/hok1.yaml"> -->
     <!-- <param name="frame_id" value="/map" /> -->
-  </node>
+  <!-- </node> -->
 
   <!-- Start the robot (HOKUYO, AMCL & MOVEBASE) -->
   <include file="$(find scr_proto)/launch/FallDemo/onebot_falldemo_robot.launch"/>
