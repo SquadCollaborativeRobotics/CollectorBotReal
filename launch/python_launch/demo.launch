@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="map" default="SVEv1.yaml" />
+  <arg name="map" default="SVEv2.yaml" />
 
   <node name="map_server" pkg="map_server" type="map_server" args="$(find scr_proto)/maps/$(arg map)">
     <!-- <param name="frame_id" value="/map" /> -->
