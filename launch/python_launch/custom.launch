@@ -2,8 +2,8 @@
 
   <arg name="robot" default="robot1" />
   <arg name="tf_prefix" default="$(arg robot)_tf" />
-  <arg name="arduino_port" default="/dev/ttyACM1" />
-  <arg name="hokuyo_port" default="/dev/ttyACM0" />
+  <arg name="arduino_port" default="/dev/ttyACM0" />
+  <arg name="hokuyo_port" default="/dev/ttyACM1" />
   <group ns="$(arg robot)">
     <param name="tf_prefix" value="$(arg tf_prefix)"/> <!-- For odom broadcaster node tf stuff -->
 
