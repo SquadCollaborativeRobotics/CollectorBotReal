@@ -23,7 +23,7 @@
 
     <!-- Static Broadcasters -->
     <node pkg="tf" type="static_transform_publisher" name="camera_transform" args=".085 0 .055 0 0 0 $(arg tf_prefix)/base_link $(arg tf_prefix)/camera_link 1000" />
-    <node pkg="tf" type="static_transform_publisher" name="hokuyo_transform" args="0.4 0 0.1 0 0 0 $(arg tf_prefix)/base_link $(arg tf_prefix)/hokuyo_frame 1000" />
+    <node pkg="tf" type="static_transform_publisher" name="hokuyo_transform" args="0.04 0 0.1 0 0 0 $(arg tf_prefix)/base_link $(arg tf_prefix)/hokuyo_frame 1000" />
 
     <!-- Launch Hokuyo -->
     <node pkg="hokuyo_node" name="hokuyo" type="hokuyo_node">
