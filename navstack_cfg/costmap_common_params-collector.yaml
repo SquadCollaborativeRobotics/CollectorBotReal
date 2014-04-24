@@ -11,4 +11,4 @@ inflation_radius: 0.65
 
 observation_sources: hokuyo_sensor
 
-hokuyo_sensor: {sensor_frame: /hokuyo_frame, data_type: LaserScan, topic: scan, marking: true, clearing: true}
+hokuyo_sensor: {data_type: LaserScan, topic: scan, marking: true, clearing: true}
