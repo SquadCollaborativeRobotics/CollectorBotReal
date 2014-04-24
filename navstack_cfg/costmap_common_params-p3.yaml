@@ -25,5 +25,5 @@ inflation_radius: 0.430
 # Both
 observation_sources: sonar_sensor kinect_sensor
 
-sonar_sensor: {sensor_frame: base_link, data_type: LaserScan, topic: scan, marking: true, clearing: true}
+sonar_sensor: {data_type: LaserScan, topic: scan, marking: true, clearing: true}
 kinect_sensor: {data_type: LaserScan, topic: kinectscan, marking: true, clearing: true}
