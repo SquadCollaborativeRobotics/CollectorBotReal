@@ -1,6 +1,10 @@
 <!-- Namespaced -->
 <launch>
 
+  <env name="ROSCONSOLE_CONFIG_FILE"
+       value="$(find global_planner)/logger.config"/>
+
+
   <arg name="robot" default="robot1" />
   <arg name="tf_prefix" default="$(arg robot)_tf" />
   <arg name="p3_port" default="/dev/ttyUSB0" />
@@ -32,7 +36,7 @@
 
     <!-- Adjust the location of the kinect relative to the baselink here -->
     <!-- TODO: FIND KINECT POS ON P3DX -->
-    <node pkg="tf" type="static_transform_publisher" name="p3_camera_link_publisher" args="0.11 0 0.08 0 0 0 $(arg tf_prefix)/base_link $(arg tf_prefix)/camera_link 1000" />
+    <node pkg="tf" type="static_transform_publisher" name="p3_camera_link_publisher" args="0.11 0 0.08 0 0 0 $(arg tf_prefix)/base_link $(arg tf_prefix)/camera_link 50" />
 
   </group>
 

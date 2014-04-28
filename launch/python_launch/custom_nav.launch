@@ -1,4 +1,7 @@
 <launch>
+  <env name="ROSCONSOLE_CONFIG_FILE"
+       value="$(find global_planner)/logger.config"/>
+
 
   <!-- Load up the machines to use.  default uses the local machine -->
   <!-- <include file="$(find scr_proto)/launch/computers.machine" /> -->

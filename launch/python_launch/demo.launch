@@ -1,9 +1,11 @@
 <launch>
+  <env name="ROSCONSOLE_CONFIG_FILE"
+       value="$(find global_planner)/logger.config"/>
 
   <arg name="map" default="SVEv2.yaml" />
 
   <node name="map_server" pkg="map_server" type="map_server" args="$(find scr_proto)/maps/$(arg map)">
-    <!-- <param name="frame_id" value="/map" /> -->
+    <param name="frame_id" value="/map" />
   </node>
 
   <include file="$(find scr_proto)/launch/static_transforms.launch" >

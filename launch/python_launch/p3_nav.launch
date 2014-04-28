@@ -1,4 +1,7 @@
 <launch>
+  <env name="ROSCONSOLE_CONFIG_FILE"
+       value="$(find global_planner)/logger.config"/>
+
 
   <arg name="robot" default="robot1" />
   <arg name="tf_prefix" default="$(arg robot)_tf" />

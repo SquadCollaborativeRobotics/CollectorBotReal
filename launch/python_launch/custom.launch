@@ -1,4 +1,6 @@
 <launch>
+  <env name="ROSCONSOLE_CONFIG_FILE"
+       value="$(find global_planner)/logger.config"/>
 
   <arg name="robot" default="robot1" />
   <arg name="tf_prefix" default="$(arg robot)_tf" />
@@ -22,8 +24,8 @@
     </node>
 
     <!-- Static Broadcasters -->
-    <node pkg="tf" type="static_transform_publisher" name="camera_transform" args=".085 0 .055 0 0 0 $(arg tf_prefix)/base_link $(arg tf_prefix)/camera_link 1000" />
-    <node pkg="tf" type="static_transform_publisher" name="hokuyo_transform" args="0.015 0 0.1 0 0 0 $(arg tf_prefix)/base_link $(arg tf_prefix)/hokuyo_frame 1000" />
+    <node pkg="tf" type="static_transform_publisher" name="camera_transform" args=".085 0 .055 0 0 0 $(arg tf_prefix)/base_link $(arg tf_prefix)/camera_link 50" />
+    <node pkg="tf" type="static_transform_publisher" name="hokuyo_transform" args="0.04 0 0.1 0 0 0 $(arg tf_prefix)/base_link $(arg tf_prefix)/hokuyo_frame 50" />
 
     <!-- Launch Hokuyo -->
     <node pkg="hokuyo_node" name="hokuyo" type="hokuyo_node">
@@ -33,7 +35,5 @@
       <param name="max_ang" value="2.0"/>
       <!-- <param name="time_offset" value="0.25"/> -->
     </node>
-
-
   </group>
 </launch>
