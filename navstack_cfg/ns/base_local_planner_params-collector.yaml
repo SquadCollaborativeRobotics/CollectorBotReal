@@ -10,8 +10,8 @@ TrajectoryPlannerROS:
   acc_lim_x: 0.3
   acc_lim_y: 0.3
 
-  yaw_goal_tolerance: 0.25 #radians ~= 15 degrees
-  xy_goal_tolerance: 0.25 #meters
+  yaw_goal_tolerance: 0.12 #radians ~= 15 degrees
+  xy_goal_tolerance: 0.12 #meters
   latch_xy_goal_tolerance: true #meters
 
   holonomic_robot: false

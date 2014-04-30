@@ -4,10 +4,10 @@ obstacle_range: 4.0
 raytrace_range: 4.5
 
 # [x0,y0] in this order=> front right, rear right, rear left, front left
-footprint: [[0.0889, 0.25], [0.0889, -0.25], [-0.2667, -0.25], [-0.2667, 0.25]]
+footprint: [[0.1, 0.25], [0.1, -0.25], [-0.4, -0.25], [-0.4, 0.25]]
 
 #robot_radius: ir_of_robot
-inflation_radius: 0.65
+inflation_radius: 1.00
 
 observation_sources: hokuyo_sensor
 
